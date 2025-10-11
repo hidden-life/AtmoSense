@@ -1,0 +1,8 @@
+#ifndef CORE_APPLICATION_CONTEXT_H
+#define CORE_APPLICATION_CONTEXT_H
+
+class ApplicationContext {
+
+};
+
+#endif //CORE_APPLICATION_CONTEXT_H

@@ -1,0 +1,8 @@
+#ifndef DATA_CACHE_FILE_CACHE_STORE_H
+#define DATA_CACHE_FILE_CACHE_STORE_H
+
+class FileCacheStore {
+
+};
+
+#endif //DATA_CACHE_FILE_CACHE_STORE_H

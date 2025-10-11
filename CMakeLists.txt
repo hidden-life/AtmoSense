@@ -3,4 +3,4 @@ project(AtmoSense)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(AtmoSense main.cpp)
+add_executable(AtmoSense src/application/main.cpp)

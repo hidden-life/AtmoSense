@@ -1,2 +1,32 @@
 cmake-*
 .idea
+build*/
+build-*
+
+# Qt Creator
+*.pro.user
+*.user
+*.qbs.user
+*.moc
+
+# CMake cache etc.
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# os
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# crash, logs etc.
+*.log
+*.tmp
+*.swp
+*.swo
+
+# translations
+*.qm

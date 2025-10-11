@@ -1,0 +1,8 @@
+#ifndef INFRASTRUCTURE_LOGGER_H
+#define INFRASTRUCTURE_LOGGER_H
+
+class Logger {
+
+};
+
+#endif //INFRASTRUCTURE_LOGGER_H

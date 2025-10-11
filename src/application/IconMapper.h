@@ -1,0 +1,8 @@
+#ifndef APPLICATION_ICON_MAPPER_H
+#define APPLICATION_ICON_MAPPER_H
+
+class IconMapper {
+
+};
+
+#endif //APPLICATION_ICON_MAPPER_H

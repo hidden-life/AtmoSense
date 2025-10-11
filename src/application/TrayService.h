@@ -1,0 +1,8 @@
+#ifndef APPLICATION_TRAY_SERVICE_H
+#define APPLICATION_TRAY_SERVICE_H
+
+class TrayService {
+
+};
+
+#endif //APPLICATION_TRAY_SERVICE_H
