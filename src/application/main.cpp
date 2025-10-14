@@ -1,6 +1,7 @@
-#include <iostream>
+#include "Application.h"
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+int main(int argc, char **argv) {
+    Application app(argc, argv);
+
+    return app.start();
 }

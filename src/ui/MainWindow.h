@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+#include "model/Forecast.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,9 +16,11 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
+public slots:
+    void displayForecast(const Forecast &forecast, const QString &title);
+
 private:
     Ui::MainWindow *ui;
 };
-
 
 #endif //MAINWINDOW_H

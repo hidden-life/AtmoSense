@@ -1,6 +1,26 @@
 cmake_minimum_required(VERSION 3.31)
-project(AtmoSense)
+set(PROJECT_NAME AtmoSense)
+project(${PROJECT_NAME} VERSION 0.1.0 LANGUAGES CXX)
 
+# set c++ standard
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(AtmoSense src/application/main.cpp)
+# Qt
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Network Test)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network Test)
+
+# Qt settings
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+# additional options
+option(ATMO_SENSE_ENABLE_TESTS "Enable tests" ON)
+
+add_subdirectory(src)
+
+if (ATMO_SENSE_ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory(tests)
+endif ()
