@@ -1,7 +1,7 @@
+#include <QAction>
+
 #include "TrayService.h"
 #include "MainWindow.h"
-
-#include <QAction>
 
 TrayService::TrayService(QObject *parent) : QObject(parent) {
     auto *open = new QAction("Open", &m_menu);

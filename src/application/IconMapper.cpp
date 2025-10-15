@@ -2,8 +2,8 @@
 
 QIcon IconMapper::iconFor(int weatherCode, bool isDarkTheme) {
     if (weatherCode == 0) {
-        return QIcon(":/icons/sunny.svg");
+        return QIcon(":/icons/sunny.png");
     } else {
-        return QIcon(":/icons/cloudy.svg");
+        return QIcon(":/icons/cloudy.png");
     }
 }

@@ -15,7 +15,7 @@ Forecast OpenMeteoWeatherProvider::fetch(double lat, double lon, const QString &
     query.addQueryItem("longitude", QString::number(lon));
     query.addQueryItem("hourly", "temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,weathercode");
     query.addQueryItem("daily", "weathercode,temperature_2m_max,temperature_2m_min");
-    query.addQueryItem("current", "true");
+    query.addQueryItem("current", "temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,weathercode");
     query.addQueryItem("timezone", tz.isEmpty() ? "auto" : tz);
     url.setQuery(query);
 
