@@ -3,6 +3,7 @@ set(SOURCES
         NetworkClient.cpp
         SettingsManager.cpp
         PlatformUtils.cpp
+        ThemeManager.cpp
 )
 
 set(HEADERS
@@ -10,10 +11,12 @@ set(HEADERS
         NetworkClient.h
         SettingsManager.h
         PlatformUtils.h
+        ThemeManager.h
 )
 
 add_library(infrastructure ${SOURCES} ${HEADERS})
 target_link_libraries(infrastructure PRIVATE
+        Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::Gui

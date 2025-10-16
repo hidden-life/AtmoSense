@@ -1,13 +1,16 @@
 set(SOURCES
-    MainWindow.cpp
+        MainWindow.cpp
+        SettingsDialog.cpp
 )
 
 set(HEADERS
-    MainWindow.h
+        MainWindow.h
+        SettingsDialog.h
 )
 
 set(UI_FILES
-    MainWindow.ui
+        MainWindow.ui
+        SettingsDialog.ui
 )
 
 add_library(ui ${SOURCES} ${HEADERS} ${UI_FILES})
@@ -18,6 +21,7 @@ target_link_libraries(ui PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
 
         domain
+        infrastructure
 )
 
 target_include_directories(ui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

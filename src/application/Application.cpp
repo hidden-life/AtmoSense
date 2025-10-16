@@ -4,6 +4,7 @@
 #include "Application.h"
 
 #include "IconMapper.h"
+#include "UpdateScheduler.h"
 #include "ui/MainWindow.h"
 #include "infrastructure/SettingsManager.h"
 #include "infrastructure/Logger.h"
@@ -16,25 +17,24 @@ Application::Application(int &argc, char **argv) : m_app(argc, argv) {
     m_app.setApplicationName("AtmoSense");
     m_app.setOrganizationName("AtmoSense Labs");
     m_app.setQuitOnLastWindowClosed(false);
+    m_ctx = std::make_unique<ApplicationContext>();
+    m_ctx->init();
 
     m_mainWindow = std::make_unique<MainWindow>();
-    m_trayService = std::make_unique<TrayService>();
+    m_trayService = std::make_unique<TrayService>(m_ctx.get());
 }
 
 Application::~Application() = default;
 
 int Application::start() {
-    m_ctx = std::make_unique<ApplicationContext>();
-    m_ctx->init();
-
     Logger::info("Application started.");
 
     auto &settings = *m_ctx->settings();
     QLocale::setDefault(QLocale(settings.language()));
 
     // start location, by default Kyiv
-    const double lat = settings.lastLatitude();
-    const double lon = settings.lastLongitude();
+    const double lat = settings.latitude();
+    const double lon = settings.longitude();
     const QString tz = "auto";
 
     // receive weather and update UI
@@ -43,7 +43,7 @@ int Application::start() {
 
     auto refresh = [this, &weatherUseCase, lat, lon, tz]() {
         try {
-            auto f = weatherUseCase(lat, lon, tz, 10);
+            const auto f = weatherUseCase(lat, lon, tz, 10);
             m_mainWindow->displayForecast(f, QString("lat=%1 lon=%2").arg(lat).arg(lon));
             m_trayService->setIcon(IconMapper::iconFor(f.weather.weatherCode, false));
             m_trayService->showInfo("Weather updated", "Forecast refreshed");
@@ -68,6 +68,11 @@ int Application::start() {
     });
 
     QObject::connect(m_trayService.get(), &TrayService::refreshAction, refresh);
+
+    QObject::connect(m_ctx->updateScheduler().get(), &UpdateScheduler::update, [this]() {
+        Logger::info("Scheluded update triggered -> refreshing weather...");
+        // here we need to call repository for weather update
+    });
 
     // show window (comment if you don't want to show it after start)
     m_mainWindow->show();

@@ -17,6 +17,7 @@ set(SOURCES
         application/Application.cpp
         application/TrayService.cpp
         application/IconMapper.cpp
+        application/UpdateScheduler.cpp
 
         core/ApplicationContext.cpp
 )
@@ -25,6 +26,7 @@ set(HEADERS
         application/Application.h
         application/TrayService.h
         application/IconMapper.h
+        application/UpdateScheduler.h
 
         core/ApplicationContext.h
 )
