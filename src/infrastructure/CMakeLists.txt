@@ -4,6 +4,7 @@ set(SOURCES
         SettingsManager.cpp
         PlatformUtils.cpp
         ThemeManager.cpp
+        TranslationManager.cpp
 )
 
 set(HEADERS
@@ -12,13 +13,14 @@ set(HEADERS
         SettingsManager.h
         PlatformUtils.h
         ThemeManager.h
+        TranslationManager.h
 )
 
 add_library(infrastructure ${SOURCES} ${HEADERS})
 target_link_libraries(infrastructure PRIVATE
+        domain
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
-        Qt${QT_VERSION_MAJOR}::Gui
 )
 target_include_directories(infrastructure PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

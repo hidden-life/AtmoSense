@@ -4,4 +4,9 @@
         <file>icons/cloudy.png</file>
         <file>icons/app_icon.png</file>
     </qresource>
+
+    <qresource prefix="/translations">
+        <file>translations/atmo_sense_en.qm</file>
+        <file>translations/atmo_sense_uk.qm</file>
+    </qresource>
 </RCC>

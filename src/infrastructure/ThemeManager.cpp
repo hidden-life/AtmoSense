@@ -4,6 +4,7 @@
 
 #include "SettingsManager.h"
 #include "ThemeManager.h"
+#include "model/Theme.h"
 
 ThemeManager::ThemeManager(SettingsManager *settings, QObject *parent) : QObject(parent), m_settings(settings) {
     connect(m_settings, &SettingsManager::settingsChanged, this, &ThemeManager::applyTheme);
@@ -11,13 +12,18 @@ ThemeManager::ThemeManager(SettingsManager *settings, QObject *parent) : QObject
 }
 
 void ThemeManager::applyTheme() {
-    QString theme = m_settings->theme();
-    if (theme == "light") {
-        setLightTheme();
-    } else if (theme == "dark") {
-        setDarkTheme();
-    } else {
-        setAutoTheme();
+    Theme theme = m_settings->theme();
+    switch (theme) {
+        case Theme::Light:
+            setLightTheme();
+            break;
+        case Theme::Dark:
+            setDarkTheme();
+            break;
+        case Theme::Auto:
+        default:
+            setAutoTheme();
+            break;
     }
 }
 

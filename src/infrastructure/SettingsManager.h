@@ -3,6 +3,9 @@
 
 #include <QSettings>
 
+#include "model/Language.h"
+#include "model/Theme.h"
+
 class SettingsManager final : public QObject {
     Q_OBJECT
 
@@ -10,8 +13,8 @@ class SettingsManager final : public QObject {
 public:
     SettingsManager(QObject *parent = nullptr);
     // application language
-    QString language() const;
-    void setLanguage(QString &language);
+    Language language() const;
+    void setLanguage(Language lang);
 
     // weather provider
     QString provider() const;
@@ -30,8 +33,8 @@ public:
     void setRefreshInterval(int minutes);
 
     // application theme: "auto", "light", "dark"
-    QString theme() const;
-    void setTheme(const QString &theme);
+    Theme theme() const;
+    void setTheme(const Theme theme);
 
     // units
     QString temperatureUnit() const; // "C", "F"

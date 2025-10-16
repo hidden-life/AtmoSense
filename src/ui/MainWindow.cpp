@@ -29,3 +29,7 @@ void MainWindow::displayForecast(const Forecast &forecast, const QString &title)
     }
     ui->plainTextEdit->setPlainText(text);
 }
+
+void MainWindow::retranslate() {
+    ui->retranslateUi(this);
+}

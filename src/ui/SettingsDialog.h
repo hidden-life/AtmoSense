@@ -9,9 +9,8 @@ QT_END_NAMESPACE
 
 class SettingsManager;
 
-class SettingsDialog : public QDialog {
-Q_OBJECT
-
+class SettingsDialog final : public QDialog {
+    Q_OBJECT
 public:
     explicit SettingsDialog(SettingsManager *settings, QWidget *parent = nullptr);
     ~SettingsDialog() override;

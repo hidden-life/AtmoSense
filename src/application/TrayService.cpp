@@ -5,27 +5,28 @@
 #include "SettingsDialog.h"
 
 TrayService::TrayService(ApplicationContext *ctx, QObject *parent) : QObject(parent), m_ctx(ctx) {
-    auto *open = new QAction("Open", &m_menu);
-    auto *refresh = new QAction("Refresh", &m_menu);
-    auto *quit = new QAction("Quit", &m_menu);
-    auto *settings = new QAction("Settings", &m_menu);
+    m_openAction = new QAction(tr("Open"), &m_menu);
+    m_refreshAction = new QAction(tr("Refresh"), &m_menu);
+    m_quitAction = new QAction(tr("Quit"), &m_menu);
+    m_settingsAction = new QAction(tr("Settings"), &m_menu);
 
-    m_menu.addAction(open);
-    m_menu.addAction(refresh);
-    m_menu.addAction(settings);
+    m_menu.addAction(m_openAction);
+    m_menu.addAction(m_refreshAction);
     m_menu.addSeparator();
-    m_menu.addAction(quit);
+    m_menu.addAction(m_settingsAction);
+    m_menu.addSeparator();
+    m_menu.addAction(m_quitAction);
 
-    connect(open, &QAction::triggered, this, &TrayService::openAction);
-    connect(refresh, &QAction::triggered, this, &TrayService::refreshAction);
-    connect(settings, &QAction::triggered, [this]() {
+    connect(m_openAction, &QAction::triggered, this, &TrayService::openAction);
+    connect(m_refreshAction, &QAction::triggered, this, &TrayService::refreshAction);
+    connect(m_settingsAction, &QAction::triggered, [this]() {
         const auto settingsCtx = m_ctx->settings();
         SettingsDialog settingsDialog(settingsCtx.get());
         settingsDialog.exec();
     });
-    connect(quit, &QAction::triggered, qApp, &QCoreApplication::quit);
+    connect(m_quitAction, &QAction::triggered, qApp, &QCoreApplication::quit);
 
-    m_tray.setToolTip("AtmoSense: fast weather info");
+    m_tray.setToolTip(tr("AtmoSense: fast weather info"));
     m_tray.setContextMenu(&m_menu);
     m_tray.show();
 }
@@ -36,5 +37,14 @@ void TrayService::setIcon(const QIcon &icon) {
 
 void TrayService::showInfo(const QString &title, const QString &message) {
     m_tray.showMessage(title, message, QSystemTrayIcon::Information, 3000);
+}
+
+void TrayService::retranslate() {
+    m_openAction->setText(tr("Open"));
+    m_refreshAction->setText(tr("Refresh"));
+    m_quitAction->setText(tr("Quit"));
+    m_settingsAction->setText(tr("Settings"));
+
+    m_tray.setToolTip(tr("AtmoSense: fast weather info"));
 }
 

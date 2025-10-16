@@ -2,12 +2,14 @@
 
 SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings("Home Labs", "AtmoSense") {}
 
-QString SettingsManager::language() const {
-    return m_settings.value("app/language", "en").toString();
+Language SettingsManager::language() const {
+    const QString lang = m_settings.value("app/language", "en").toString();
+
+    return LanguageUtils::fromCode(lang);
 }
 
-void SettingsManager::setLanguage(QString &language) {
-    m_settings.setValue("app/language", language);
+void SettingsManager::setLanguage(const Language lang) {
+    m_settings.setValue("app/language", LanguageUtils::toCode(lang));
     emit settingsChanged();
 }
 
@@ -72,12 +74,13 @@ void SettingsManager::setWindSpeedUnit(const QString &windSpeed) {
     emit settingsChanged();
 }
 
-QString SettingsManager::theme() const {
-    return m_settings.value("app/theme", "auto").toString();
+Theme SettingsManager::theme() const {
+    const QString t = m_settings.value("app/theme", "auto").toString();
+    return ThemeUtils::fromString(t);
 }
 
-void SettingsManager::setTheme(const QString &theme) {
-    m_settings.setValue("app/theme", theme);
+void SettingsManager::setTheme(const Theme theme) {
+    m_settings.setValue("app/theme", ThemeUtils::toString(theme));
     emit settingsChanged();
 }
 

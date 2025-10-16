@@ -18,6 +18,7 @@ public:
 
 public slots:
     void displayForecast(const Forecast &forecast, const QString &title);
+    void retranslate();
 
 private:
     Ui::MainWindow *ui;
