@@ -22,7 +22,7 @@ Application::Application(int &argc, char **argv) : m_app(argc, argv) {
     m_ctx = std::make_unique<ApplicationContext>();
     m_ctx->init();
 
-    m_mainWindow = std::make_unique<MainWindow>();
+    m_mainWindow = std::make_unique<MainWindow>(m_ctx.get());
     m_trayService = std::make_unique<TrayService>(m_ctx.get());
 }
 

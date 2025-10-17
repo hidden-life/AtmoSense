@@ -11,7 +11,7 @@ class SettingsManager final : public QObject {
 
     QSettings m_settings;
 public:
-    SettingsManager(QObject *parent = nullptr);
+    explicit SettingsManager(QObject *parent = nullptr);
     // application language
     Language language() const;
     void setLanguage(Language lang);
@@ -42,8 +42,15 @@ public:
     QString windSpeedUnit() const; // "m/s", "km/h"
     void setWindSpeedUnit(const QString &windSpeed);
 
+    // show close prompt
+    bool showClosePrompt() const { return m_showClosePrompt; }
+    void setShowClosePrompt(bool value);
+
 signals:
     void settingsChanged();
+
+private:
+    bool m_showClosePrompt = true;
 };
 
 #endif //INFRASTRUCTURE_SETTINGS_MANAGER_H

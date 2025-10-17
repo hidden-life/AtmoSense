@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include "model/Forecast.h"
+#include "ApplicationContext.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -13,15 +14,19 @@ class MainWindow : public QMainWindow {
 Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(ApplicationContext *ctx, QWidget *parent = nullptr);
     ~MainWindow() override;
 
 public slots:
     void displayForecast(const Forecast &forecast, const QString &title);
     void retranslate();
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
 private:
     Ui::MainWindow *ui;
+    ApplicationContext *m_ctx;
 };
 
 #endif //MAINWINDOW_H

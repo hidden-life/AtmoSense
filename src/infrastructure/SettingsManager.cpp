@@ -74,6 +74,13 @@ void SettingsManager::setWindSpeedUnit(const QString &windSpeed) {
     emit settingsChanged();
 }
 
+void SettingsManager::setShowClosePrompt(const bool value) {
+    if (m_showClosePrompt == value) return;
+
+    m_showClosePrompt = value;
+    emit settingsChanged();
+}
+
 Theme SettingsManager::theme() const {
     const QString t = m_settings.value("app/theme", "auto").toString();
     return ThemeUtils::fromString(t);

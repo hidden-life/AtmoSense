@@ -1,8 +1,12 @@
+#include <QMessageBox>
+#include <QPushButton>
+
 #include "MainWindow.h"
 #include "./ui_mainwindow.h"
+#include "SettingsManager.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent), ui(new Ui::MainWindow) {
+MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
+    QMainWindow(parent), ui(new Ui::MainWindow), m_ctx(ctx) {
     ui->setupUi(this);
     setWindowTitle("AtmoSense");
 }
@@ -32,4 +36,33 @@ void MainWindow::displayForecast(const Forecast &forecast, const QString &title)
 
 void MainWindow::retranslate() {
     ui->retranslateUi(this);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if (const auto settings = m_ctx->settings(); settings->showClosePrompt()) {
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle(tr("Exit application"));
+        msgBox.setText(tr("Do you want to exit or minimize the app to tray?"));
+        msgBox.setIcon(QMessageBox::Question);
+        QPushButton *minimizeButton = msgBox.addButton(tr("Minimize to tray"), QMessageBox::AcceptRole);
+        QPushButton *quitButton = msgBox.addButton(tr("Quit"), QMessageBox::DestructiveRole);
+        QPushButton *cancelButton = msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
+        msgBox.exec();
+
+        if (msgBox.clickedButton() == minimizeButton) {
+            this->hide();
+            event->ignore();
+            return;
+        }
+
+        if (msgBox.clickedButton() == quitButton) {
+            QApplication::quit();
+            return;
+        }
+
+        event->ignore();
+        return;
+    }
+
+    QMainWindow::closeEvent(event);
 }
