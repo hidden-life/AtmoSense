@@ -4,6 +4,7 @@
 #include "NetworkClient.h"
 #include "SettingsManager.h"
 #include "ThemeManager.h"
+#include "TranslationManager.h"
 #include "application/UpdateScheduler.h"
 #include "cache/FileCacheStore.h"
 #include "open_meteo/OpenMeteoWeatherProvider.h"
@@ -33,6 +34,9 @@ void ApplicationContext::init() {
 
     m_weatherRepository = std::make_shared<WeatherRepository>(*m_weatherProvider, *m_cache);
 
-    m_themeManager = std::make_shared<ThemeManager>(m_settings.get());
-    m_updateScheduler = std::make_shared<UpdateScheduler>(m_settings.get());
+    m_themeManager = std::make_shared<ThemeManager>(m_settings);
+    m_updateScheduler = std::make_shared<UpdateScheduler>(m_settings);
+
+    m_translationManager = std::make_shared<TranslationManager>(m_settings);
+    m_translationManager->apply();
 }

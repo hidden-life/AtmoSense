@@ -9,11 +9,12 @@ class SettingsManager;
 class ThemeManager final : public QObject {
     Q_OBJECT
 public:
-    explicit ThemeManager(SettingsManager *settings, QObject *parent = nullptr);
+    explicit ThemeManager(std::shared_ptr<SettingsManager> settings, QObject *parent = nullptr);
     void applyTheme();
 
 private:
-    SettingsManager *m_settings;
+    std::shared_ptr<SettingsManager> m_settings;
+
     void setDarkTheme();
     void setLightTheme();
     void setAutoTheme();

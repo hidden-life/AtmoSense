@@ -3,20 +3,22 @@
 
 #include <QCoreApplication>
 #include <QObject>
+#include <QTranslator>
 
 class SettingsManager;
 
 class TranslationManager final : public QObject {
     Q_OBJECT
 public:
-    explicit TranslationManager(SettingsManager *settings, QObject *parent = nullptr);
+    explicit TranslationManager(std::shared_ptr<SettingsManager> settings, QObject *parent = nullptr);
+    ~TranslationManager();
     void apply();
 
 signals:
     void languageChanged();
 
 private:
-    SettingsManager *m_settings;
+    std::shared_ptr<SettingsManager> m_settings;
     std::unique_ptr<QTranslator> m_translator;
 
     void install(const QString &code);

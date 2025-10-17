@@ -8,15 +8,19 @@ class MainWindow;
 class ApplicationContext;
 class TrayService;
 
-class Application {
+class Application : public QObject {
+    Q_OBJECT
     QApplication m_app;
     std::unique_ptr<ApplicationContext> m_ctx;
     std::unique_ptr<MainWindow> m_mainWindow;
     std::unique_ptr<TrayService> m_trayService;
 
+public slots:
+    void showSettings();
+
 public:
     Application(int &argc, char **argv);
-    ~Application();
+    ~Application() override;
     int start();
 };
 

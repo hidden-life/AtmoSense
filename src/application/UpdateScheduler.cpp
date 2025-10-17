@@ -3,15 +3,15 @@
 #include "Logger.h"
 #include "SettingsManager.h"
 
-UpdateScheduler::UpdateScheduler(SettingsManager *settings, QObject *parent) : QObject(parent), m_settings(settings) {
+UpdateScheduler::UpdateScheduler(std::shared_ptr<SettingsManager> settings, QObject *parent) : QObject(parent), m_settings(std::move(settings)) {
     connect(&m_timer, &QTimer::timeout, this, &UpdateScheduler::onTimeout);
-    connect(m_settings, &SettingsManager::settingsChanged, this, &UpdateScheduler::onSettingsChanged);
+    connect(m_settings.get(), &SettingsManager::settingsChanged, this, &UpdateScheduler::onSettingsChanged);
 
     restartTimer();
 }
 
 void UpdateScheduler::restartTimer() {
-    int minutes = m_settings->refreshInterval();
+    const int minutes = m_settings->refreshInterval();
     int ms = minutes * 60 * 1000;
     if (ms < 60000) {
         ms = 60000;

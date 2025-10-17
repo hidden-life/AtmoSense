@@ -2,8 +2,8 @@
 #include "SettingsManager.h"
 #include "./ui_settingsdialog.h"
 
-SettingsDialog::SettingsDialog(SettingsManager *settings, QWidget *parent) :
-    QDialog(parent), ui(new Ui::SettingsDialog), m_settings(settings) {
+SettingsDialog::SettingsDialog(std::shared_ptr<SettingsManager> settings, QWidget *parent) :
+    QDialog(parent), ui(new Ui::SettingsDialog), m_settings(std::move(settings)) {
     ui->setupUi(this);
 
     // fill themes
@@ -21,12 +21,29 @@ SettingsDialog::SettingsDialog(SettingsManager *settings, QWidget *parent) :
     ui->providerComboBox->setCurrentText(m_settings->provider());
     ui->refreshIntervalSpinBox->setValue(m_settings->refreshInterval());
 
+    // language
+    ui->languageComboBox->clear();
+    ui->languageComboBox->addItem(LanguageUtils::toDisplayName(Language::English), LanguageUtils::toCode(Language::English));
+    ui->languageComboBox->addItem(LanguageUtils::toDisplayName(Language::Ukrainian), LanguageUtils::toCode(Language::Ukrainian));
+
+    const QString currentCode = LanguageUtils::toCode(m_settings->language());
+    if (const int idx = ui->languageComboBox->currentIndex(); idx >= 0) {
+        ui->languageComboBox->setCurrentIndex(idx);
+    }
+
+    const QString selectedCode = ui->languageComboBox->currentData().toString();
+    m_settings->setLanguage(LanguageUtils::fromCode(selectedCode));
+
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsDialog::onSaveButtonClicked);
     connect(ui->cancelButton, &QPushButton::clicked, this, &SettingsDialog::onCancelButtonClicked);
 }
 
 SettingsDialog::~SettingsDialog() {
     delete ui;
+}
+
+void SettingsDialog::retranslate() {
+    ui->retranslateUi(this);
 }
 
 void SettingsDialog::onSaveButtonClicked() {
@@ -38,6 +55,7 @@ void SettingsDialog::onSaveButtonClicked() {
     m_settings->setWindSpeedUnit(ui->windSpeedUnitComboBox->currentText());
     m_settings->setProvider(ui->providerComboBox->currentText());
     m_settings->setRefreshInterval(ui->refreshIntervalSpinBox->value());
+    m_settings->setLanguage(LanguageUtils::fromCode(ui->languageComboBox->currentData().toString()));
 
     accept();
 }

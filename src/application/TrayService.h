@@ -21,6 +21,7 @@ public slots:
 signals:
     void openAction();
     void refreshAction();
+    void openSettingsRequested();
 
 private:
     QSystemTrayIcon m_tray;

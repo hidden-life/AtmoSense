@@ -12,12 +12,15 @@ class SettingsManager;
 class SettingsDialog final : public QDialog {
     Q_OBJECT
 public:
-    explicit SettingsDialog(SettingsManager *settings, QWidget *parent = nullptr);
+    explicit SettingsDialog(std::shared_ptr<SettingsManager> settings, QWidget *parent = nullptr);
     ~SettingsDialog() override;
+
+public slots:
+    void retranslate();
 
 private:
     Ui::SettingsDialog *ui;
-    SettingsManager *m_settings;
+    std::shared_ptr<SettingsManager> m_settings;
 
 private slots:
     void onSaveButtonClicked();

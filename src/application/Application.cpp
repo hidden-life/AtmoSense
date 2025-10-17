@@ -4,6 +4,8 @@
 #include "Application.h"
 
 #include "IconMapper.h"
+#include "SettingsDialog.h"
+#include "TranslationManager.h"
 #include "UpdateScheduler.h"
 #include "ui/MainWindow.h"
 #include "infrastructure/SettingsManager.h"
@@ -30,7 +32,7 @@ int Application::start() {
     Logger::info("Application started.");
 
     auto &settings = *m_ctx->settings();
-    QLocale::setDefault(QLocale(settings.language()));
+    QLocale::setDefault(QLocale(LanguageUtils::toCode(settings.language())));
 
     // start location, by default Kyiv
     const double lat = settings.latitude();
@@ -70,13 +72,24 @@ int Application::start() {
     QObject::connect(m_trayService.get(), &TrayService::refreshAction, refresh);
 
     QObject::connect(m_ctx->updateScheduler().get(), &UpdateScheduler::update, [this]() {
-        Logger::info("Scheluded update triggered -> refreshing weather...");
+        Logger::info("Scheduled update triggered -> refreshing weather...");
         // here we need to call repository for weather update
     });
+
+    auto tr = m_ctx->translation();
+    QObject::connect(tr.get(), &TranslationManager::languageChanged, m_mainWindow.get(), &MainWindow::retranslate);
+    QObject::connect(tr.get(), &TranslationManager::languageChanged, m_trayService.get(), &TrayService::retranslate);
+
+    QObject::connect(m_trayService.get(), &TrayService::openSettingsRequested, this, &Application::showSettings);
 
     // show window (comment if you don't want to show it after start)
     m_mainWindow->show();
     Logger::info("Main window shown.");
 
     return m_app.exec();
+}
+
+void Application::showSettings() {
+    SettingsDialog settingsDialog(m_ctx->settings(), m_mainWindow.get());
+    settingsDialog.exec();
 }

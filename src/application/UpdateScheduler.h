@@ -9,7 +9,7 @@ class SettingsManager;
 class UpdateScheduler final : public QObject {
     Q_OBJECT
 public:
-    explicit UpdateScheduler(SettingsManager *settings, QObject *parent = nullptr);
+    explicit UpdateScheduler(std::shared_ptr<SettingsManager> settings, QObject *parent = nullptr);
 
 signals:
     void update();
@@ -19,7 +19,7 @@ private slots:
     void onTimeout();
 
 private:
-    SettingsManager *m_settings;
+    std::shared_ptr<SettingsManager> m_settings;
     QTimer m_timer;
 
     void restartTimer();

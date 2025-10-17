@@ -6,8 +6,8 @@
 #include "ThemeManager.h"
 #include "model/Theme.h"
 
-ThemeManager::ThemeManager(SettingsManager *settings, QObject *parent) : QObject(parent), m_settings(settings) {
-    connect(m_settings, &SettingsManager::settingsChanged, this, &ThemeManager::applyTheme);
+ThemeManager::ThemeManager(std::shared_ptr<SettingsManager> settings, QObject *parent) : QObject(parent), m_settings(std::move(settings)) {
+    connect(m_settings.get(), &SettingsManager::settingsChanged, this, &ThemeManager::applyTheme);
     applyTheme();
 }
 
