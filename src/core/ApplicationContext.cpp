@@ -5,6 +5,7 @@
 #include "SettingsManager.h"
 #include "ThemeManager.h"
 #include "TranslationManager.h"
+#include "application/IconMapper.h"
 #include "application/UpdateScheduler.h"
 #include "cache/FileCacheStore.h"
 #include "open_meteo/OpenMeteoWeatherProvider.h"
@@ -39,4 +40,6 @@ void ApplicationContext::init() {
 
     m_translationManager = std::make_shared<TranslationManager>(m_settings);
     m_translationManager->apply();
+
+    m_iconMapper = std::make_shared<IconMapper>();
 }

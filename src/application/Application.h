@@ -18,6 +18,9 @@ class Application : public QObject {
 public slots:
     void showSettings();
 
+private slots:
+    void fetchWeather();
+
 public:
     Application(int &argc, char **argv);
     ~Application() override;

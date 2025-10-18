@@ -1,8 +1,29 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/sunny.png</file>
-        <file>icons/cloudy.png</file>
+        <file>icons/weather/day/clear.png</file>
+        <file>icons/weather/day/cloudy.png</file>
+        <file>icons/weather/day/fog.png</file>
+        <file>icons/weather/day/partly_cloudy.png</file>
+        <file>icons/weather/day/rain.png</file>
+        <file>icons/weather/day/rain_thunder.png</file>
+        <file>icons/weather/day/snow.png</file>
+        <file>icons/weather/day/snow_grains.png</file>
+        <file>icons/weather/day/snow_thunder.png</file>
+        <file>icons/weather/day/thunder.png</file>
+
+        <file>icons/weather/night/clear.png</file>
+        <file>icons/weather/night/cloudy.png</file>
+        <file>icons/weather/night/fog.png</file>
+        <file>icons/weather/night/partly_cloudy.png</file>
+        <file>icons/weather/night/rain.png</file>
+        <file>icons/weather/night/rain_thunder.png</file>
+        <file>icons/weather/night/snow.png</file>
+        <file>icons/weather/night/snow_grains.png</file>
+        <file>icons/weather/night/snow_thunder.png</file>
+        <file>icons/weather/night/thunder.png</file>
+
         <file>icons/app_icon.png</file>
+        <file>icons/unknown.png</file>
     </qresource>
 
     <qresource prefix="/">

@@ -13,6 +13,7 @@ class IWeatherRepository;
 class ThemeManager;
 class UpdateScheduler;
 class TranslationManager;
+class IconMapper;
 
 class ApplicationContext {
 public:
@@ -46,6 +47,9 @@ public:
     [[nodiscard]]
     std::shared_ptr<TranslationManager> translation() const { return m_translationManager; }
 
+    [[nodiscard]]
+    std::shared_ptr<IconMapper> iconMapper() const { return m_iconMapper; }
+
 private:
     [[nodiscard]]
     QDir cacheDir() const;
@@ -59,6 +63,7 @@ private:
     std::shared_ptr<ThemeManager> m_themeManager;
     std::shared_ptr<UpdateScheduler> m_updateScheduler;
     std::shared_ptr<TranslationManager> m_translationManager;
+    std::shared_ptr<IconMapper> m_iconMapper;
 };
 
 #endif //CORE_APPLICATION_CONTEXT_H

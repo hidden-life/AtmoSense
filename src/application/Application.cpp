@@ -5,6 +5,7 @@
 
 #include "IconMapper.h"
 #include "SettingsDialog.h"
+#include "ThemeManager.h"
 #include "TranslationManager.h"
 #include "UpdateScheduler.h"
 #include "ui/MainWindow.h"
@@ -59,28 +60,31 @@ int Application::start() {
 
     int minutes = settings.refreshInterval();
     auto *timer = new QTimer(&m_app);
-    QObject::connect(timer, &QTimer::timeout, &m_app, refresh);
+    connect(timer, &QTimer::timeout, &m_app, refresh);
     timer->start(minutes * 60 * 1000);
 
     // tray
-    QObject::connect(m_trayService.get(), &TrayService::openAction, [&]() {
+    connect(m_trayService.get(), &TrayService::openAction, [&]() {
         m_mainWindow->show();
         m_mainWindow->raise();
         m_mainWindow->activateWindow();
     });
 
-    QObject::connect(m_trayService.get(), &TrayService::refreshAction, refresh);
+    connect(m_trayService.get(), &TrayService::refreshAction, refresh);
 
-    QObject::connect(m_ctx->updateScheduler().get(), &UpdateScheduler::update, [this]() {
+    connect(m_ctx->updateScheduler().get(), &UpdateScheduler::update, [this]() {
         Logger::info("Scheduled update triggered -> refreshing weather...");
         // here we need to call repository for weather update
     });
 
     auto tr = m_ctx->translation();
-    QObject::connect(tr.get(), &TranslationManager::languageChanged, m_mainWindow.get(), &MainWindow::retranslate);
-    QObject::connect(tr.get(), &TranslationManager::languageChanged, m_trayService.get(), &TrayService::retranslate);
+    connect(tr.get(), &TranslationManager::languageChanged, m_mainWindow.get(), &MainWindow::retranslate);
+    connect(tr.get(), &TranslationManager::languageChanged, m_trayService.get(), &TrayService::retranslate);
 
-    QObject::connect(m_trayService.get(), &TrayService::openSettingsRequested, this, &Application::showSettings);
+    connect(m_trayService.get(), &TrayService::openSettingsRequested, this, &Application::showSettings);
+
+    connect(m_ctx->updateScheduler().get(), &UpdateScheduler::update, this, &Application::fetchWeather);
+    QMetaObject::invokeMethod(this, &Application::fetchWeather, Qt::QueuedConnection);
 
     // show window (comment if you don't want to show it after start)
     m_mainWindow->show();
@@ -92,4 +96,34 @@ int Application::start() {
 void Application::showSettings() {
     SettingsDialog settingsDialog(m_ctx->settings(), m_mainWindow.get());
     settingsDialog.exec();
+}
+
+void Application::fetchWeather() {
+    Logger::info("Application: Fetching weather...");
+
+    auto &repository = *m_ctx->weatherRepository();
+    const auto settings = m_ctx->settings();
+
+    const double lat = settings->latitude();
+    const double lon = settings->longitude();
+    const QString tz = "auto"; // change in the future, by adding new method to SettingsManager: timezone()
+
+    try {
+        auto forecast = repository.get(lat, lon ,tz, 60);
+        Logger::info("Application: weather data fetched successfully.");
+
+        // update UI
+        if (m_mainWindow) {
+            m_mainWindow->updateWeather(forecast);
+        }
+
+        // update tray icon
+        if (m_trayService) {
+            const bool isDark = m_ctx->themeManager()->isDarkTheme();
+            const auto icon = m_ctx->iconMapper()->map(forecast.weather.weatherCode, isDark);
+            m_trayService->setIcon(icon);
+        }
+    } catch (const std::exception &e) {
+        Logger::error("Failed to fetch weather: " + QString::fromStdString(e.what()));
+    }
 }

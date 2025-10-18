@@ -61,3 +61,11 @@ void ThemeManager::setAutoTheme() {
     setLightTheme();
 #endif
 }
+
+bool ThemeManager::isDarkTheme() const {
+    return m_settings->theme() == Theme::Dark;
+}
+
+bool ThemeManager::isLightTheme() const {
+    return m_settings->theme() == Theme::Light;
+}

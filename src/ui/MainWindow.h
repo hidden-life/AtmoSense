@@ -20,6 +20,7 @@ public:
 public slots:
     void displayForecast(const Forecast &forecast, const QString &title);
     void retranslate();
+    void updateWeather(const Forecast &forecast);
 
 protected:
     void closeEvent(QCloseEvent *event) override;

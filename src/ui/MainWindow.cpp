@@ -3,6 +3,7 @@
 
 #include "MainWindow.h"
 #include "./ui_mainwindow.h"
+#include "Logger.h"
 #include "SettingsManager.h"
 
 MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
@@ -36,6 +37,13 @@ void MainWindow::displayForecast(const Forecast &forecast, const QString &title)
 
 void MainWindow::retranslate() {
     ui->retranslateUi(this);
+}
+
+void MainWindow::updateWeather(const Forecast &forecast) {
+    Logger::info("MainWindow: updating weather UI.");
+
+    // simple weather update below
+    // @todo
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
