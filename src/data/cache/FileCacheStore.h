@@ -2,6 +2,7 @@
 #define DATA_CACHE_FILE_CACHE_STORE_H
 
 #include <QDir>
+#include <QMutex>
 #include "interfaces/ICacheStore.h"
 
 class FileCacheStore : public ICacheStore {
@@ -14,6 +15,8 @@ public:
 
 private:
     QString pathFor(const QString &key) const;
+    bool isExpired(const QString &path) const;
+    mutable QMutex m_mutex;
 };
 
 #endif //DATA_CACHE_FILE_CACHE_STORE_H
