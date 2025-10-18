@@ -44,9 +44,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         msgBox.setWindowTitle(tr("Exit application"));
         msgBox.setText(tr("Do you want to exit or minimize the app to tray?"));
         msgBox.setIcon(QMessageBox::Question);
-        QPushButton *minimizeButton = msgBox.addButton(tr("Minimize to tray"), QMessageBox::AcceptRole);
-        QPushButton *quitButton = msgBox.addButton(tr("Quit"), QMessageBox::DestructiveRole);
-        QPushButton *cancelButton = msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
+        const QPushButton *minimizeButton = msgBox.addButton(tr("Minimize to tray"), QMessageBox::AcceptRole);
+        const QPushButton *quitButton = msgBox.addButton(tr("Quit"), QMessageBox::DestructiveRole);
+        const QPushButton *cancelButton = msgBox.addButton(tr("Cancel"), QMessageBox::RejectRole);
         msgBox.exec();
 
         if (msgBox.clickedButton() == minimizeButton) {
@@ -58,6 +58,10 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         if (msgBox.clickedButton() == quitButton) {
             QApplication::quit();
             return;
+        }
+
+        if (msgBox.clickedButton() == cancelButton) {
+            event->ignore();
         }
 
         event->ignore();
