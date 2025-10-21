@@ -1,6 +1,8 @@
 #include "SettingsManager.h"
 
-SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings("Home Labs", "AtmoSense") {}
+SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings("Home Labs", "AtmoSense") {
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+}
 
 Language SettingsManager::language() const {
     const QString lang = m_settings.value("app/language", "en").toString();

@@ -24,6 +24,7 @@ Application::Application(int &argc, char **argv) : m_app(argc, argv) {
     m_ctx->init();
 
     m_mainWindow = std::make_unique<MainWindow>(m_ctx.get());
+    m_mainWindow->restoreLastLocation();
     m_trayService = std::make_unique<TrayService>(m_ctx.get());
 }
 
@@ -106,8 +107,11 @@ int Application::start() {
 }
 
 void Application::showSettings() {
+    auto tr = m_ctx->translation();
+    tr->blockSignals(true);
     SettingsDialog settingsDialog(m_ctx->settings(), m_ctx.get(), m_mainWindow.get());
     settingsDialog.exec();
+    tr->blockSignals(false);
 }
 
 void Application::fetchWeather() {

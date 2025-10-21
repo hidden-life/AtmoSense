@@ -52,6 +52,12 @@ void MainWindow::displayForecast(const Forecast &forecast, const QString &title)
 
 void MainWindow::retranslate() {
     ui->retranslateUi(this);
+
+    if (!m_locationLabelText.isEmpty()) {
+        ui->locationLabel->setText(m_locationLabelText);
+    }
+
+    statusBar()->showMessage(tr("Ready"));
 }
 
 void MainWindow::updateWeather(const Forecast &forecast) {
@@ -111,19 +117,21 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::restoreLastLocation() {
-    if (const auto location = m_ctx->settings()->lastLocation(); !location.name.isEmpty()) {
+    const auto location = m_ctx->settings()->lastLocation();
+    if (!location.name.isEmpty()) {
+        m_locationLabelText = location.name;
         ui->locationLabel->setText(location.name);
     } else {
-        m_locationLabelText.clear();
-        ui->locationLabel->setText(tr("Select location"));
+        m_locationLabelText = tr("Select location");
+        ui->locationLabel->setText(m_locationLabelText);
     }
 }
 
 void MainWindow::onChangeLocationButtonClicked() {
-    LocationSearchDialog dialog(m_ctx, this);
-    if (dialog.exec() == QDialog::Accepted) {
+    if (LocationSearchDialog dialog(m_ctx, this); dialog.exec() == QDialog::Accepted) {
         const auto location = dialog.selected();
         m_ctx->settings()->setLastLocation(location);
+        m_locationLabelText = location.name;
         ui->locationLabel->setText(location.name);
 
         emit refreshRequested();

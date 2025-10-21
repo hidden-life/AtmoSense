@@ -17,6 +17,8 @@ public:
     explicit MainWindow(ApplicationContext *ctx, QWidget *parent = nullptr);
     ~MainWindow() override;
 
+    void restoreLastLocation();
+
 public slots:
     void displayForecast(const Forecast &forecast, const QString &title);
     void retranslate();
@@ -39,8 +41,6 @@ private:
     ApplicationContext *m_ctx;
 
     QString m_locationLabelText;
-
-    void restoreLastLocation();
 };
 
 #endif //MAINWINDOW_H

@@ -39,7 +39,7 @@ void LocationSearchDialog::onSearchTextChanged(const QString &text) {
 
 void LocationSearchDialog::onItemDoubleClicked() {
     int row = ui->resultsList->currentRow();
-    if (row >= 0 && row < (int)m_results.size()) {
+    if (row >= 0 && row < static_cast<int>(m_results.size())) {
         m_selected = m_results[row];
         accept();
     }
