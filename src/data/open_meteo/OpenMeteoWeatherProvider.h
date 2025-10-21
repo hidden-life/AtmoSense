@@ -9,6 +9,7 @@ class OpenMeteoWeatherProvider : public  IWeatherProvider {
 public:
     explicit OpenMeteoWeatherProvider(NetworkClient &client);
     Forecast fetch(double lat, double lon, const QString &tz) override;
+    QString name() const override;
 };
 
 #endif //DATA_OPEN_METEO_OPEN_METEO_WEATHER_PROVIDER_H

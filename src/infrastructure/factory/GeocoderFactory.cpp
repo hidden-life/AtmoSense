@@ -12,7 +12,11 @@ std::shared_ptr<IGeocoder> GeocoderFactory::create(const QString &name, NetworkC
 
 std::map<QString, std::shared_ptr<IGeocoder>> GeocoderFactory::createAll(NetworkClient &client) {
     std::map<QString, std::shared_ptr<IGeocoder>> providers;
-    providers.emplace("OpenMeteo", std::make_shared<OpenMeteoGeocoder>(client));
+
+    auto geocoder = std::make_shared<OpenMeteoGeocoder>(client);
+    providers.insert({ geocoder->name(), geocoder });
+
+    // here add another providers bellow
 
     return providers;
 }

@@ -51,7 +51,7 @@ void LocationSearchDialog::performSearch() {
         return;
     }
 
-    auto geocoder = m_ctx->geocoder();
+    auto geocoder = m_ctx->currentGeocoderProvider();
     const auto results = geocoder->search(q, QLocale().name().split('_').first(), 10);
 
     showResults(results);

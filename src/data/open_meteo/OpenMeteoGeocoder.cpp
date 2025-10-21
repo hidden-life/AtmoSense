@@ -89,3 +89,7 @@ std::vector<Location> OpenMeteoGeocoder::search(const QString &query, const QStr
 std::vector<Location> OpenMeteoGeocoder::search(const QString &text, const int count) {
     return search(text, QLocale().name().split('_').first(), count);
 }
+
+QString OpenMeteoGeocoder::name() const {
+    return "Open-Meteo Geocoder";
+}

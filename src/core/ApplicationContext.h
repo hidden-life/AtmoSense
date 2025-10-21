@@ -32,12 +32,6 @@ public:
     std::shared_ptr<ICacheStore> cache() const { return m_cache; }
 
     [[nodiscard]]
-    std::shared_ptr<IWeatherProvider> weatherProvider() const { return m_weatherProvider; }
-
-    [[nodiscard]]
-    std::shared_ptr<IGeocoder> geocoder() const { return m_geocoder; }
-
-    [[nodiscard]]
     std::shared_ptr<IWeatherRepository> weatherRepository() const { return m_weatherRepository; }
 
     [[nodiscard]]
@@ -71,8 +65,6 @@ private:
     std::shared_ptr<NetworkClient> m_networkClient;
     std::shared_ptr<SettingsManager> m_settings;
     std::shared_ptr<ICacheStore> m_cache;
-    std::shared_ptr<IWeatherProvider> m_weatherProvider;
-    std::shared_ptr<IGeocoder> m_geocoder;
     std::shared_ptr<IWeatherRepository> m_weatherRepository;
     std::shared_ptr<ThemeManager> m_themeManager;
     std::shared_ptr<UpdateScheduler> m_updateScheduler;

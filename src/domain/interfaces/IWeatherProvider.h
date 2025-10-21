@@ -7,6 +7,7 @@ class IWeatherProvider {
 public:
     virtual ~IWeatherProvider() = default;
     virtual Forecast fetch(double lat, double lon, const QString &tz) = 0;
+    virtual QString name() const = 0;
 };
 
 #endif //DOMAIN_INTERFACES_IWEATHER_PROVIDER_H

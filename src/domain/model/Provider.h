@@ -13,14 +13,14 @@ enum class GeocoderProviderId {
 
 inline QString toString(const WeatherProviderId id) {
     switch (id) {
-        case WeatherProviderId::OpenMeteo: return "open_meteo";
+        case WeatherProviderId::OpenMeteo: return "Open-Meteo";
     }
 
-    return "open_meteo";
+    return "Open-Meteo";
 }
 
 inline WeatherProviderId toWeatherProvider(const QString &str) {
-    if (str == "open_meteo") {
+    if (str == "Open-Meteo" || str == "OpenMeteo") {
         return WeatherProviderId::OpenMeteo;
     }
 
@@ -29,14 +29,14 @@ inline WeatherProviderId toWeatherProvider(const QString &str) {
 
 inline QString toString(const GeocoderProviderId id) {
     switch (id) {
-        case GeocoderProviderId::OpenMeteo: return "open_meteo";
+        case GeocoderProviderId::OpenMeteo: return "Open-Meteo Geocoder";
     }
 
-    return "open_meteo";
+    return "Open-Meteo Geocoder";
 }
 
 inline GeocoderProviderId toGeocoderProvider(const QString &str) {
-    if (str == "open_meteo") {
+    if (str == "Open-Meteo Geocoder" || str == "OpenMeteo Geocoder") {
         return GeocoderProviderId::OpenMeteo;
     }
 

@@ -13,7 +13,11 @@ std::shared_ptr<IWeatherProvider> WeatherProviderFactory::create(const QString &
 std::map<QString, std::shared_ptr<IWeatherProvider>> WeatherProviderFactory::createAll(NetworkClient &client) {
     std::map<QString, std::shared_ptr<IWeatherProvider>> providers;
 
-    providers.emplace("OpenMeteo", std::make_shared<OpenMeteoWeatherProvider>(client));
+    auto openMeteo = std::make_shared<OpenMeteoWeatherProvider>(client);
+
+    providers.insert({ openMeteo->name(), openMeteo });
+
+    // add another providers here bellow
 
     return providers;
 }

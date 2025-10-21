@@ -1,6 +1,8 @@
 #include <QStandardPaths>
 
 #include "ApplicationContext.h"
+
+#include "Logger.h"
 #include "NetworkClient.h"
 #include "SettingsManager.h"
 #include "ThemeManager.h"
@@ -35,11 +37,31 @@ QDir ApplicationContext::cacheDir() const {
 }
 
 void ApplicationContext::rebuildWeatherProvider() {
-    m_weatherProvider = WeatherProviderFactory::create("OpenMeteo", *m_networkClient);
+    const QString selected = toString(m_settings->weatherProvider());
+    auto it = m_weatherProviders.find(selected);
+    if (it != m_weatherProviders.end()) {
+        m_currentWeatherProvider = it->second;
+        Logger::info("Weather provider switched: " + selected);
+    } else if (!m_weatherProviders.empty()) {
+        m_currentWeatherProvider = m_weatherProviders.begin()->second;
+        Logger::warn("Unknown weather provider <" + selected + ">, fallback to default.");
+    }
+
+    if (m_weatherRepository && m_currentWeatherProvider) {
+        m_weatherRepository->setProvider(m_currentWeatherProvider);
+    }
 }
 
 void ApplicationContext::rebuildGeocoder() {
-    m_geocoder = GeocoderFactory::create("OpenMeteo", *m_networkClient);
+    const QString selected = toString(m_settings->geocoderProvider());
+    auto it = m_geocoderProviders.find(selected);
+    if (it != m_geocoderProviders.end()) {
+        m_currentGeocoderProvider = it->second;
+        Logger::info("Geocoder provider switched: " + selected);
+    } else if (!m_geocoderProviders.empty()) {
+        m_currentGeocoderProvider = m_geocoderProviders.begin()->second;
+        Logger::warn("Unknown geocoder <" + selected + ">, fallback to default.");
+    }
 }
 
 void ApplicationContext::init() {
@@ -47,16 +69,15 @@ void ApplicationContext::init() {
     m_settings = std::make_shared<SettingsManager>();
     m_cache = std::make_shared<FileCacheStore>(cacheDir());
 
-    // first creation based on settings
+    // create providers using factories
+    m_weatherProviders = WeatherProviderFactory::createAll(*m_networkClient);
+    m_geocoderProviders = GeocoderFactory::createAll(*m_networkClient);
+
+    // first creation based on settings and set to m_currentWeatherProvider & m_currentGeocoderProvider
     rebuildWeatherProvider();
     rebuildGeocoder();
 
-    m_weatherRepository = std::make_shared<WeatherRepository>(m_weatherProvider, *m_cache);
-
-    // open meteo as default
-    m_weatherProvider = std::make_shared<OpenMeteoWeatherProvider>(*m_networkClient);
-    m_geocoder = std::make_shared<OpenMeteoGeocoder>(*m_networkClient);
-
+    m_weatherRepository = std::make_shared<WeatherRepository>(m_currentWeatherProvider, *m_cache);
 
     m_themeManager = std::make_shared<ThemeManager>(m_settings);
     m_updateScheduler = std::make_shared<UpdateScheduler>(m_settings);
@@ -69,7 +90,7 @@ void ApplicationContext::init() {
     connect(m_settings.get(), &SettingsManager::weatherProviderChanged, [this](WeatherProviderId id) {
         rebuildWeatherProvider();
         // "send" new provider to repository
-        if (m_weatherProvider) m_weatherRepository->setProvider(m_weatherProvider);
+        if (m_weatherRepository && m_currentWeatherProvider) m_weatherRepository->setProvider(m_currentWeatherProvider);
 
         emit providersChanged();
     });
