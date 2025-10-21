@@ -61,8 +61,14 @@ public:
     bool showClosePrompt() const { return m_showClosePrompt; }
     void setShowClosePrompt(bool value);
 
+    // hourly display hours
+    [[nodiscard]]
+    int hourlyDisplayHours() const;
+    void setHourlyDisplayHours(int hours);
+
 signals:
     void settingsChanged();
+    void hourlyDisplayHoursChanged();
 
 private:
     bool m_showClosePrompt = true;

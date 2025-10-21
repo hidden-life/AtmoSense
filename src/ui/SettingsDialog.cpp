@@ -34,6 +34,8 @@ SettingsDialog::SettingsDialog(std::shared_ptr<SettingsManager> settings, QWidge
     const QString selectedCode = ui->languageComboBox->currentData().toString();
     m_settings->setLanguage(LanguageUtils::fromCode(selectedCode));
 
+    ui->hourlyDisplaySpinBox->setValue(m_settings->hourlyDisplayHours());
+
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsDialog::onSaveButtonClicked);
     connect(ui->cancelButton, &QPushButton::clicked, this, &SettingsDialog::onCancelButtonClicked);
 }
@@ -56,6 +58,7 @@ void SettingsDialog::onSaveButtonClicked() {
     m_settings->setProvider(ui->providerComboBox->currentText());
     m_settings->setRefreshInterval(ui->refreshIntervalSpinBox->value());
     m_settings->setLanguage(LanguageUtils::fromCode(ui->languageComboBox->currentData().toString()));
+    m_settings->setHourlyDisplayHours(ui->hourlyDisplaySpinBox->value());
 
     accept();
 }

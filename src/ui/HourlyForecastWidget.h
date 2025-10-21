@@ -24,7 +24,8 @@ public:
 
 private:
     Ui::HourlyForecastWidget *ui;
-    ApplicationContext *m_ctx;
+    ApplicationContext *m_ctx = nullptr;
+    std::vector<Weather> m_lastHourly;
 };
 
 #endif //HOURLYFORECASTWIDGET_H

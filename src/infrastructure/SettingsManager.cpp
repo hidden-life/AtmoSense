@@ -101,6 +101,17 @@ void SettingsManager::setShowClosePrompt(const bool value) {
     emit settingsChanged();
 }
 
+int SettingsManager::hourlyDisplayHours() const {
+    return m_settings.value("weather/hourly_display_hours", 24).toInt(); // default for 24 hours
+}
+
+void SettingsManager::setHourlyDisplayHours(int hours) {
+    m_settings.setValue("weather/hourly_display_hours", hours);
+
+    emit hourlyDisplayHoursChanged();
+    emit settingsChanged();
+}
+
 Theme SettingsManager::theme() const {
     const QString t = m_settings.value("app/theme", "auto").toString();
     return ThemeUtils::fromString(t);
