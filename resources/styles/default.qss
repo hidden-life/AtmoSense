@@ -21,13 +21,28 @@ QLineEdit {
     border: 1px solid #c7cdd3;
     border-radius: 6px;
     padding: 6px;
+    font-size: 14px;
 }
 
 QListWidget {
-    border: 1px solid #c7cdd3;
+    border: 1px solid #ccc;
     border-radius: 6px;
+    background-color: #fff;
+}
+
+QListWidget::item {
+    padding: 6px 10px;
+}
+
+QListWidget::item::selected {
+    background-color: #e8f0fe;
+    color: #000;
 }
 
 QStatusBar {
     background: #e9edf2;
+}
+
+QDialog {
+    background-color: #fdfdfd;
 }

@@ -5,11 +5,22 @@
 LocationSearchDialog::LocationSearchDialog(ApplicationContext *ctx, QWidget *parent) :
     QDialog(parent), ui(new Ui::LocationSearchDialog), m_ctx(ctx) {
     ui->setupUi(this);
-    setFixedSize(420, 360);
+    resize(400, 480);
+    setWindowTitle(tr("Location Search"));
 
-    connect(ui->searchLocationLineEdit, &QLineEdit::textChanged, this, &LocationSearchDialog::onTextChanged);
-    connect(ui->resultListWidget, &QListWidget::itemClicked, this, &LocationSearchDialog::onItemClicked);
+    // buttons
     connect(ui->cancelButton, &QPushButton::clicked, this, &QDialog::reject);
+    connect(ui->okButton, &QPushButton::clicked, this, &QDialog::accept);
+    connect(ui->clearButton, &QPushButton::clicked, this, &LocationSearchDialog::onClearClicked);
+
+    // search
+    connect(ui->searchEdit, &QLineEdit::textChanged, this, &LocationSearchDialog::onSearchTextChanged);
+    connect(ui->resultsList, &QListWidget::itemDoubleClicked, this, &LocationSearchDialog::onItemDoubleClicked);
+
+    // timer configuration
+    m_debounceTimer.setSingleShot(true);
+    m_debounceTimer.setInterval(300); // 300 ms
+    connect(&m_debounceTimer, &QTimer::timeout, this, &LocationSearchDialog::performSearch);
 }
 
 LocationSearchDialog::~LocationSearchDialog() {
@@ -17,35 +28,58 @@ LocationSearchDialog::~LocationSearchDialog() {
     delete ui;
 }
 
-void LocationSearchDialog::onTextChanged(const QString &text) {
-    if (text.trimmed().size() < 3) return;
-    auto geocoder = m_ctx->geocoder();
-    const auto results = geocoder->search(text);
+void LocationSearchDialog::onSearchTextChanged(const QString &text) {
+    if (text.trimmed().isEmpty()) {
+        ui->resultsList->clear();
+        return;
+    }
 
-    ui->resultListWidget->clear();
-    for (const auto &location : results) {
-        auto *item = new QListWidgetItem(
-            QString("%1 - %2 (%3:%4)").
-                arg(location.name).
-                arg(location.region).
-                arg(location.latitude, 0, 'f', 2).
-                arg(location.longitude, 0, 'f', 2)
-                );
+    m_debounceTimer.start();
+}
 
-        item->setData(Qt::UserRole, location.name);
-        item->setData(Qt::UserRole + 1, location.region);
-        item->setData(Qt::UserRole + 2, location.latitude);
-        item->setData(Qt::UserRole + 3, location.longitude);
-
-        ui->resultListWidget->addItem(item);
+void LocationSearchDialog::onItemDoubleClicked() {
+    int row = ui->resultsList->currentRow();
+    if (row >= 0 && row < (int)m_results.size()) {
+        m_selected = m_results[row];
+        accept();
     }
 }
 
-void LocationSearchDialog::onItemClicked(const QListWidgetItem *item) {
-    m_selected.name = item->data(Qt::UserRole).toString();
-    m_selected.region = item->data(Qt::UserRole + 1).toString();
-    m_selected.latitude = item->data(Qt::UserRole + 2).toDouble();
-    m_selected.longitude = item->data(Qt::UserRole + 3).toDouble();
+void LocationSearchDialog::performSearch() {
+    const QString q = ui->searchEdit->text().trimmed();
+    if (q.isEmpty()) {
+        return;
+    }
 
-    accept();
+    auto geocoder = m_ctx->geocoder();
+    const auto results = geocoder->search(q, QLocale().name().split('_').first(), 10);
+
+    showResults(results);
+}
+
+void LocationSearchDialog::onClearClicked() {
+    ui->searchEdit->clear();
+    ui->resultsList->clear();
+}
+
+void LocationSearchDialog::showResults(const std::vector<Location> &results) {
+    m_results = results;
+    ui->resultsList->clear();
+
+    for (const auto &location : results) {
+        auto *item = new QListWidgetItem(ui->resultsList);
+        QString line = QString("%1 - %2").arg(location.name, location.region);
+        item->setText(line);
+        item->setToolTip(QString("%1\nlat=%2, lon=%3").
+            arg(line).arg(location.latitude, 0, 'f', 4).
+            arg(location.longitude, 0, 'f', 4));
+
+        ui->resultsList->addItem(item);
+    }
+
+    if (ui->resultsList->count() == 0) {
+        auto *empty = new QListWidgetItem(tr("No results found."));
+        empty->setFlags(Qt::NoItemFlags);
+        ui->resultsList->addItem(empty);
+    }
 }
