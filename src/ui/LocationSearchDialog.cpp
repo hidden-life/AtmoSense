@@ -25,30 +25,27 @@ void LocationSearchDialog::onTextChanged(const QString &text) {
     ui->resultListWidget->clear();
     for (const auto &location : results) {
         auto *item = new QListWidgetItem(
-            QString("%1 (%2, %3) - %4, %5").
+            QString("%1 - %2 (%3:%4)").
                 arg(location.name).
+                arg(location.region).
                 arg(location.latitude, 0, 'f', 2).
-                arg(location.longitude, 0, 'f', 2).
-                arg(location.country).
-                arg(location.region)
+                arg(location.longitude, 0, 'f', 2)
                 );
 
-        item->setData(Qt::UserRole, location.latitude);
-        item->setData(Qt::UserRole + 1, location.longitude);
-        item->setData(Qt::UserRole + 2, location.timezone);
-        item->setData(Qt::UserRole + 3, location.name);
+        item->setData(Qt::UserRole, location.name);
+        item->setData(Qt::UserRole + 1, location.region);
+        item->setData(Qt::UserRole + 2, location.latitude);
+        item->setData(Qt::UserRole + 3, location.longitude);
 
         ui->resultListWidget->addItem(item);
     }
 }
 
 void LocationSearchDialog::onItemClicked(const QListWidgetItem *item) {
-    m_selected.name = item->data(Qt::UserRole + 3).toString();
-    m_selected.timezone = item->data(Qt::UserRole + 2).toString();
-    m_selected.longitude = item->data(Qt::UserRole + 1).toDouble();
-    m_selected.latitude = item->data(Qt::UserRole).toDouble();
-    m_selected.country = item->data(Qt::UserRole + 4).toString();
-    m_selected.region = item->data(Qt::UserRole + 5).toString();
+    m_selected.name = item->data(Qt::UserRole).toString();
+    m_selected.region = item->data(Qt::UserRole + 1).toString();
+    m_selected.latitude = item->data(Qt::UserRole + 2).toDouble();
+    m_selected.longitude = item->data(Qt::UserRole + 3).toDouble();
 
     accept();
 }

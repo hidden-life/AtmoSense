@@ -9,7 +9,7 @@
 
 OpenMeteoGeocoder::OpenMeteoGeocoder(NetworkClient &client) : m_client(client) {}
 
-std::vector<Location> OpenMeteoGeocoder::search(const QString &query, const QString &lang, int count) {
+std::vector<Location> OpenMeteoGeocoder::search(const QString &query, const QString &lang, const int count) {
     std::vector<Location> result;
     if (query.trimmed().isEmpty()) {
         return result;
@@ -29,11 +29,13 @@ std::vector<Location> OpenMeteoGeocoder::search(const QString &query, const QStr
 
     const auto doc = QJsonDocument::fromJson(data.toJson());
     if (!doc.isObject()) {
+        Logger::warn("OpenMeteoGeocoder: Failed to parse search result.");
         return result;
     }
 
     const auto root = doc.object();
     if (!root.contains("results")) {
+        Logger::warn("OpenMeteoGeocoder: No results for query <" + query + ">");
         return result;
     }
 
@@ -48,19 +50,42 @@ std::vector<Location> OpenMeteoGeocoder::search(const QString &query, const QStr
         location.longitude = obj.value("longitude").toDouble();
         location.timezone = obj.value("timezone").toString();
         location.country = obj.value("country").toString();
-        location.region = QString("[%1, %2, %3, %4]").
-            arg(obj.value("admin1").toString()).
-            arg(obj.value("admin2").toString()).
-            arg(obj.value("admin3").toString()).
-            arg(obj.value("admin4").toString())
-        ;
+        // create region string
+        QStringList regionParts;
+        for (const QString &adminKey : {"admin1", "admin2", "admin3", "admin4"}) {
+            const QString v = obj.value(adminKey).toString().trimmed();
+            if (!v.isEmpty() && !regionParts.contains(v)) {
+                regionParts.append(v);
+            }
+        }
 
-        result.push_back(location);
+        // readable region section
+        QString full;
+        if (!regionParts.isEmpty()) {
+            full = regionParts.join(", ");
+        }
+
+        if (!location.country.isEmpty()) {
+            if (!full.isEmpty()) {
+                full += ", ";
+            }
+            full += location.country;
+        }
+        location.region = full;
+
+        // filter for duplicates
+        auto exists = std::any_of(result.begin(), result.end(), [&](const Location &loc) {
+            return qFuzzyCompare(loc.latitude, location.latitude) && qFuzzyCompare(loc.longitude, location.longitude);
+        });
+
+        if (!exists) {
+            result.push_back(location);
+        }
     }
 
     return result;
 }
 
-std::vector<Location> OpenMeteoGeocoder::search(const QString &text) {
-    return search(text, "en", 10);
+std::vector<Location> OpenMeteoGeocoder::search(const QString &text, const int count) {
+    return search(text, QLocale().name().split('_').first(), count);
 }

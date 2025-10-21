@@ -9,7 +9,7 @@ class OpenMeteoGeocoder : public IGeocoder {
 public:
     explicit OpenMeteoGeocoder(NetworkClient &client);
     std::vector<Location> search(const QString &query, const QString &lang, int count) override;
-    std::vector<Location> search(const QString &text) override;
+    std::vector<Location> search(const QString &text, int count) override;
 };
 
 #endif //DATA_OPEN_METEO_OPEN_METEO_GEOCODER_H
