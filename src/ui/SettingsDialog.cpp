@@ -1,10 +1,13 @@
 #include "SettingsDialog.h"
 #include "SettingsManager.h"
 #include "./ui_settingsdialog.h"
+#include "ApplicationContext.h"
 
-SettingsDialog::SettingsDialog(std::shared_ptr<SettingsManager> settings, QWidget *parent) :
-    QDialog(parent), ui(new Ui::SettingsDialog), m_settings(std::move(settings)) {
+SettingsDialog::SettingsDialog(std::shared_ptr<SettingsManager> settings, ApplicationContext *ctx, QWidget *parent) :
+    QDialog(parent), ui(new Ui::SettingsDialog), m_settings(std::move(settings)), m_ctx(ctx) {
     ui->setupUi(this);
+
+    populateProviders();
 
     // fill themes
     ui->themeComboBox->clear();
@@ -46,6 +49,45 @@ SettingsDialog::~SettingsDialog() {
 
 void SettingsDialog::retranslate() {
     ui->retranslateUi(this);
+}
+
+void SettingsDialog::populateProviders() {
+    //clear before fill
+    ui->providerComboBox->clear();
+    ui->geocoderComboBox->clear();
+
+    // add available weather providers
+    for (const auto &pair : m_ctx->weatherProviders()) {
+        ui->providerComboBox->addItem(pair.first);
+    }
+
+    // add available geocoder providers
+    for (const auto &pair : m_ctx->geocoderProviders()) {
+        ui->geocoderComboBox->addItem(pair.first);
+    }
+
+    // enable/disable based on count
+    const bool multipleWeatherProviders = m_ctx->weatherProviderCount() > 1;
+    const bool multipleGeocoderProviders = m_ctx->geocoderProviderCount() > 1;
+
+    ui->providerComboBox->setEnabled(multipleWeatherProviders);
+    ui->geocoderComboBox->setEnabled(multipleGeocoderProviders);
+
+    // set an active as default
+    if (auto activeWeatherProvider = m_ctx->currentWeatherProvider()) {
+        const QString key = std::find_if(
+                m_ctx->weatherProviders().begin(), m_ctx->weatherProviders().end(),
+                [&](auto &w) { return w.second == activeWeatherProvider; }
+            )->first;
+        ui->providerComboBox->setCurrentText(key);
+    }
+
+    if (auto activeGeocoderProvider = m_ctx->currentGeocoderProvider()) {
+        const QString key = std::find_if(
+                m_ctx->geocoderProviders().begin(), m_ctx->geocoderProviders().end(),
+                [&](auto &g) { return g.second == activeGeocoderProvider; }
+        )->first;
+    }
 }
 
 void SettingsDialog::onSaveButtonClicked() {

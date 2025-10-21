@@ -112,6 +112,32 @@ void SettingsManager::setHourlyDisplayHours(int hours) {
     emit settingsChanged();
 }
 
+WeatherProviderId SettingsManager::weatherProvider() const {
+    const QString val = m_settings.value("providers/weather", "open_meteo").toString();
+
+    return toWeatherProvider(val);
+}
+
+void SettingsManager::setWeatherProvider(WeatherProviderId id) {
+    m_settings.setValue("providers/weather", toString(id));
+
+    emit weatherProviderChanged(id);
+    emit settingsChanged();
+}
+
+GeocoderProviderId SettingsManager::geocoderProvider() const {
+    const QString val = m_settings.value("providers/geocoder", "open_meteo").toString();
+
+    return toGeocoderProvider(val);
+}
+
+void SettingsManager::setGeocoderProvider(GeocoderProviderId id) {
+    m_settings.setValue("providers/geocoder", toString(id));
+
+    emit geocoderProviderChanged(id);
+    emit settingsChanged();
+}
+
 Theme SettingsManager::theme() const {
     const QString t = m_settings.value("app/theme", "auto").toString();
     return ThemeUtils::fromString(t);

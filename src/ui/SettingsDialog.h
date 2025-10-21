@@ -8,11 +8,12 @@ namespace Ui { class SettingsDialog; }
 QT_END_NAMESPACE
 
 class SettingsManager;
+class ApplicationContext;
 
 class SettingsDialog final : public QDialog {
     Q_OBJECT
 public:
-    explicit SettingsDialog(std::shared_ptr<SettingsManager> settings, QWidget *parent = nullptr);
+    explicit SettingsDialog(std::shared_ptr<SettingsManager> settings, ApplicationContext *ctx, QWidget *parent = nullptr);
     ~SettingsDialog() override;
 
 public slots:
@@ -21,6 +22,9 @@ public slots:
 private:
     Ui::SettingsDialog *ui;
     std::shared_ptr<SettingsManager> m_settings;
+    ApplicationContext *m_ctx = nullptr;
+
+    void populateProviders();
 
 private slots:
     void onSaveButtonClicked();

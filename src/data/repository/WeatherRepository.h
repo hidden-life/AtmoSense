@@ -8,11 +8,12 @@
 #include "interfaces/ICacheStore.h"
 
 class WeatherRepository : public IWeatherRepository {
-    IWeatherProvider &m_provider;
+    std::shared_ptr<IWeatherProvider> m_provider;
     ICacheStore &m_cacheStore;
 public:
-    WeatherRepository(IWeatherProvider &provider, ICacheStore &cacheStore);
+    WeatherRepository(std::shared_ptr<IWeatherProvider> provider, ICacheStore &cacheStore);
     Forecast get(double lat, double lon, const QString &tz, int maxAge) override;
+    void setProvider(std::shared_ptr<IWeatherProvider> provider) override;
 };
 
 #endif //DATA_REPOSITORY_WEATHER_REPOSITORY_H

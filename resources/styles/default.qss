@@ -46,3 +46,9 @@ QStatusBar {
 QDialog {
     background-color: #fdfdfd;
 }
+
+QComboBox:disabled {
+    color: #888;
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+}

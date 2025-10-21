@@ -1,6 +1,7 @@
 #ifndef CORE_APPLICATION_CONTEXT_H
 #define CORE_APPLICATION_CONTEXT_H
 
+#include <QObject>
 #include <QDir>
 #include <memory>
 
@@ -15,7 +16,8 @@ class UpdateScheduler;
 class TranslationManager;
 class IconMapper;
 
-class ApplicationContext {
+class ApplicationContext final : public QObject {
+    Q_OBJECT
 public:
     ApplicationContext();
     void init();
@@ -50,6 +52,18 @@ public:
     [[nodiscard]]
     std::shared_ptr<IconMapper> iconMapper() const { return m_iconMapper; }
 
+    std::shared_ptr<IWeatherProvider> currentWeatherProvider() const { return m_currentWeatherProvider; };
+    std::shared_ptr<IGeocoder> currentGeocoderProvider() const { return m_currentGeocoderProvider; };
+
+    const std::map<QString, std::shared_ptr<IWeatherProvider>> &weatherProviders() const { return m_weatherProviders; }
+    const std::map<QString, std::shared_ptr<IGeocoder>> &geocoderProviders() const { return m_geocoderProviders; }
+
+    int weatherProviderCount() const;
+    int geocoderProviderCount() const;
+
+signals:
+    void providersChanged();
+
 private:
     [[nodiscard]]
     QDir cacheDir() const;
@@ -64,6 +78,14 @@ private:
     std::shared_ptr<UpdateScheduler> m_updateScheduler;
     std::shared_ptr<TranslationManager> m_translationManager;
     std::shared_ptr<IconMapper> m_iconMapper;
+
+    std::map<QString, std::shared_ptr<IWeatherProvider>> m_weatherProviders;
+    std::map<QString, std::shared_ptr<IGeocoder>> m_geocoderProviders;
+    std::shared_ptr<IWeatherProvider> m_currentWeatherProvider;
+    std::shared_ptr<IGeocoder> m_currentGeocoderProvider;
+
+    void rebuildWeatherProvider();
+    void rebuildGeocoder();
 };
 
 #endif //CORE_APPLICATION_CONTEXT_H

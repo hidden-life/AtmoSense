@@ -6,6 +6,7 @@
 #include "model/Language.h"
 #include "model/Location.h"
 #include "model/Theme.h"
+#include "model/Provider.h"
 
 class SettingsManager final : public QObject {
     Q_OBJECT
@@ -66,9 +67,21 @@ public:
     int hourlyDisplayHours() const;
     void setHourlyDisplayHours(int hours);
 
+    // providers
+    [[nodiscard]]
+    WeatherProviderId weatherProvider() const;
+    void setWeatherProvider(WeatherProviderId weatherProvider);
+    [[nodiscard]]
+    GeocoderProviderId geocoderProvider() const;
+    void setGeocoderProvider(GeocoderProviderId geocoderProvider);
+
 signals:
     void settingsChanged();
     void hourlyDisplayHoursChanged();
+
+    // providers
+    void weatherProviderChanged(WeatherProviderId id);
+    void geocoderProviderChanged(GeocoderProviderId id);
 
 private:
     bool m_showClosePrompt = true;

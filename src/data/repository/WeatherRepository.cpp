@@ -34,7 +34,8 @@ static Weather parse(const QJsonObject &obj) {
     return w;
 }
 
-WeatherRepository::WeatherRepository(IWeatherProvider &provider, ICacheStore &cacheStore) : m_provider(provider), m_cacheStore(cacheStore) {}
+WeatherRepository::WeatherRepository(std::shared_ptr<IWeatherProvider> provider, ICacheStore &cacheStore) :
+    m_provider(std::move(provider)), m_cacheStore(cacheStore) {}
 
 Forecast WeatherRepository::get(const double lat, const double lon, const QString &tz, const int maxAge) {
     const QString key = cacheKey(lat, lon, tz);
@@ -63,7 +64,12 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
     Logger::info("Cache miss for forecast, fetching using API: <" + key + ">.");
     Forecast forecast;
     try {
-        forecast = m_provider.fetch(lat, lon, tz);
+        if (!m_provider) {
+            Logger::error("Weather provider is not initialized.");
+            throw std::runtime_error("Weather provider missing.");
+        }
+
+        forecast = m_provider->fetch(lat, lon, tz);
     } catch (std::exception &e) {
         Logger::error("Weather provider fetch failed: " + QString::fromStdString(e.what()));
         // fallback and return old cache data
@@ -111,4 +117,8 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
     Logger::info("WeatherRepository: cached new forecast (" + QString::number(serialized.size()) + ")");
 
     return forecast;
+}
+
+void WeatherRepository::setProvider(std::shared_ptr<IWeatherProvider> provider) {
+    m_provider = std::move(provider);
 }

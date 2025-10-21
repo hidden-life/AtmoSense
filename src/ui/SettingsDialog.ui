@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
+    <width>414</width>
     <height>244</height>
    </rect>
   </property>
@@ -14,7 +14,7 @@
    <string>SettingsDialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="1" column="0">
+   <item row="2" column="0">
     <layout class="QHBoxLayout" name="bottomHLayout">
      <item>
       <widget class="QPushButton" name="saveButton">
@@ -34,68 +34,7 @@
    </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
-     <item row="3" column="1">
-      <widget class="QLabel" name="tempUnitLabel">
-       <property name="text">
-        <string>Temperature unit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
-      <widget class="QLabel" name="windSpeedUnitLabel">
-       <property name="text">
-        <string>Wind speed</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLabel" name="refreshIntervalLabel">
-       <property name="text">
-        <string>Refresh interval (minutes)</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QSpinBox" name="refreshIntervalSpinBox">
-       <property name="maximum">
-        <number>60</number>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QComboBox" name="themeComboBox"/>
-     </item>
-     <item>
-      <widget class="QLabel" name="hourlyDisplayLabel">
-       <property name="text">
-        <string>Hourly display count:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="hourlyDisplaySpinBox">
-       <property name="minimum">
-        <number>6</number>
-       </property>
-       <property name="maximum">
-        <number>72</number>
-       </property>
-       <property name="singleStep">
-        <number>6</number>
-       </property>
-       <property name="value">
-        <number>24</number>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="providerLabel">
-       <property name="text">
-        <string>Weather provider</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
+     <item row="4" column="2">
       <widget class="QComboBox" name="tempUnitComboBox">
        <item>
         <property name="text">
@@ -107,6 +46,13 @@
          <string>°F</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLabel" name="refreshIntervalLabel">
+       <property name="text">
+        <string>Refresh interval (minutes)</string>
+       </property>
       </widget>
      </item>
      <item row="2" column="2">
@@ -123,7 +69,64 @@
        </item>
       </widget>
      </item>
-     <item row="4" column="2">
+     <item row="7" column="2">
+      <widget class="QSpinBox" name="hourlyDisplaySpinBox">
+       <property name="minimum">
+        <number>6</number>
+       </property>
+       <property name="maximum">
+        <number>72</number>
+       </property>
+       <property name="singleStep">
+        <number>6</number>
+       </property>
+       <property name="value">
+        <number>24</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QLabel" name="hourlyDisplayLabel">
+       <property name="text">
+        <string>Hourly display count:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QSpinBox" name="refreshIntervalSpinBox">
+       <property name="maximum">
+        <number>60</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QLabel" name="tempUnitLabel">
+       <property name="text">
+        <string>Temperature unit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="languageLabel">
+       <property name="text">
+        <string>Language</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QComboBox" name="languageComboBox"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="themeComboBox"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="themeLabel">
+       <property name="text">
+        <string>Theme</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
       <widget class="QComboBox" name="windSpeedUnitComboBox">
        <item>
         <property name="text">
@@ -137,22 +140,29 @@
        </item>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="themeLabel">
+     <item row="5" column="1">
+      <widget class="QLabel" name="windSpeedUnitLabel">
        <property name="text">
-        <string>Theme</string>
+        <string>Wind speed</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="languageLabel">
+     <item row="2" column="1">
+      <widget class="QLabel" name="providerLabel">
        <property name="text">
-        <string>Language</string>
+        <string>Weather provider</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QComboBox" name="languageComboBox"/>
+     <item row="3" column="1">
+      <widget class="QLabel" name="geocoderLabel">
+       <property name="text">
+        <string>Geocoder provider</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QComboBox" name="geocoderComboBox"/>
      </item>
     </layout>
    </item>
