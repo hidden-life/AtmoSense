@@ -1,0 +1,11 @@
+<ui version="4.0">
+ <class>WeatherSummaryWidget</class>
+ <widget class="QWidget" name="WeatherSummaryWidget">
+  <layout class="QVBoxLayout" name="vbox">
+   <item><widget class="QLabel" name="iconLabel"><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+   <item><widget class="QLabel" name="temperatureLabel"><property name="styleSheet"><string notr="true">font-size:56px;font-weight:bold;</string></property><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+   <item><widget class="QLabel" name="descriptionLabel"><property name="alignment"><set>Qt::AlignCenter</set></property></widget></item>
+   <item><widget class="QLabel" name="extraLabel"><property name="alignment"><set>Qt::AlignCenter</set></property><property name="styleSheet"><string notr="true">color:#666;font-size:13px;</string></property></widget></item>
+  </layout>
+ </widget>
+</ui>

@@ -6,34 +6,86 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>560</width>
-    <height>380</height>
+    <width>342</width>
+    <height>98</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>WeatherApp</string>
+   <string>AtmoSense</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../../resources/resources.qrc">
-    <normaloff>:/icons/app_icon.png</normaloff>:/icons/app_icon.png</iconset>
-  </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="centralLayout">
     <item>
-     <widget class="QPlainTextEdit" name="plainTextEdit">
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-      <property name="placeholderText">
-       <string>Weather output...</string>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="headerHLayout">
+      <item>
+       <widget class="QLabel" name="locationLabel">
+        <property name="styleSheet">
+         <string notr="true">font-size:20px;font-weight:600;padding:6px;</string>
+        </property>
+        <property name="text">
+         <string>Select location</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="hSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="changeLocationButton">
+        <property name="text">
+         <string>Change</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="refreshButton">
+        <property name="text">
+         <string>Refresh</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="WeatherSummaryWidget" name="weatherSummaryWidget" native="true"/>
+    </item>
+    <item>
+     <widget class="HourlyForecastWidget" name="hourlyForecastWidget" native="true"/>
+    </item>
+    <item>
+     <widget class="DailyForecastWidget" name="dailyForecastWidget" native="true"/>
     </item>
    </layout>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
  </widget>
- <resources>
-  <include location="../../resources/resources.qrc"/>
- </resources>
+ <customwidgets>
+  <customwidget>
+   <class>WeatherSummaryWidget</class>
+   <extends>QWidget</extends>
+   <header>weathersummarywidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>HourlyForecastWidget</class>
+   <extends>QWidget</extends>
+   <header>hourlyforecastwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DailyForecastWidget</class>
+   <extends>QWidget</extends>
+   <header>dailyforecastwidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
  <connections/>
 </ui>

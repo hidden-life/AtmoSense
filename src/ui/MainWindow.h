@@ -22,12 +22,21 @@ public slots:
     void retranslate();
     void updateWeather(const Forecast &forecast);
 
+private slots:
+    void onChangeLocationButtonClicked();
+    void onRefreshButtonClicked();
+
+signals:
+    void refreshRequested();
+
 protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
     Ui::MainWindow *ui;
     ApplicationContext *m_ctx;
+
+    void restoreLastLocation();
 };
 
 #endif //MAINWINDOW_H

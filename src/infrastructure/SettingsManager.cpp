@@ -34,8 +34,28 @@ double SettingsManager::longitude() const {
     return m_settings.value("weather/longitude", 30.5234).toDouble();
 }
 
-void SettingsManager::setLongitude(double longitude) {
+void SettingsManager::setLongitude(const double longitude) {
     m_settings.setValue("weather/longitude", longitude);
+}
+
+Location SettingsManager::lastLocation() const {
+    Location location;
+    location.name = m_settings.value("last_location/name").toString();
+    location.latitude = m_settings.value("last_location/latitude").toDouble();
+    location.longitude = m_settings.value("last_location/longitude").toDouble();
+    location.timezone = m_settings.value("last_location/timezone").toString();
+
+    return location;
+}
+
+void SettingsManager::setLastLocation(const Location &location) {
+    m_settings.setValue("last_location/name", location.name);
+    m_settings.setValue("last_location/latitude", location.latitude);
+    m_settings.setValue("last_location/longitude", location.longitude);
+    m_settings.setValue("last_location/timezone", location.timezone);
+
+    m_settings.sync();
+    emit settingsChanged();
 }
 
 int SettingsManager::refreshInterval() const {

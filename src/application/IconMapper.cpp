@@ -24,7 +24,7 @@ QString IconMapper::resolveIconPath(int weatherCode, bool isDarkTheme) {
     const QString weatherIconsPath = QString(":/icons/weather/%1/").arg(isDarkTheme ? "night" : "day");
     // https://open-meteo.com/en/docs
     // icons
-    if (weatherCode == 0) return weatherIconsPath + "sunny.png";
+    if (weatherCode == 0) return weatherIconsPath + "clear.png";
     if (weatherCode == 1 || weatherCode == 2) return weatherIconsPath + "partly_cloudy.png";
     if (weatherCode == 3) return weatherIconsPath + "cloudy.png";
     if (weatherCode == 45 || weatherCode == 48) return weatherIconsPath + "fog.png";

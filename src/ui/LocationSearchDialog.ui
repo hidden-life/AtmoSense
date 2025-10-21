@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LocationSearchDialog</class>
+ <widget class="QDialog" name="LocationSearchDialog">
+  <property name="windowTitle"><string>Search Location</string></property>
+  <layout class="QVBoxLayout" name="vbox">
+   <item><widget class="QLabel" name="searchLocationLabel"><property name="text"><string>Type a city or village name:</string></property></widget></item>
+   <item><widget class="QLineEdit" name="searchLocationLineEdit"/></item>
+   <item><widget class="QListWidget" name="resultListWidget"/></item>
+   <item>
+    <layout class="QHBoxLayout" name="btns">
+     <item><spacer name="hsp"><property name="orientation"><enum>Qt::Horizontal</enum></property></spacer></item>
+     <item><widget class="QPushButton" name="cancelButton"><property name="text"><string>Cancel</string></property></widget></item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -6,6 +6,8 @@
 
 #include "OpenMeteoWeatherProvider.h"
 
+#include "Logger.h"
+
 OpenMeteoWeatherProvider::OpenMeteoWeatherProvider(NetworkClient &client) : m_client(client) {}
 
 Forecast OpenMeteoWeatherProvider::fetch(double lat, double lon, const QString &tz) {
@@ -21,7 +23,7 @@ Forecast OpenMeteoWeatherProvider::fetch(double lat, double lon, const QString &
 
     QJsonDocument doc = m_client.getJson(url);
     auto root = doc.object();
-
+    qDebug() << "Root: " << root;
     Forecast forecast;
     // current
     if (root.contains("current")) {
@@ -40,7 +42,7 @@ Forecast OpenMeteoWeatherProvider::fetch(double lat, double lon, const QString &
     auto temp = hourly.value("temperature_2m").toArray();
     auto hum = hourly.value("relative_humidity_2m").toArray();
     auto pres = hourly.value("pressure_msl").toArray();
-    auto wind = root.value("wind_speed_10m").toArray();
+    auto wind = hourly.value("wind_speed_10m").toArray();
     auto code = hourly.value("weathercode").toArray();
 
     int n = std::min({ times.size(), temp.size(), hum.size(), pres.size(), wind.size(), code.size() });

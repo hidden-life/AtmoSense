@@ -31,6 +31,10 @@ Application::~Application() = default;
 
 int Application::start() {
     Logger::info("Application started.");
+    QFile qss(":/styles/default.qss");
+    if (qss.open(QFile::ReadOnly)) {
+        qApp->setStyleSheet(qss.readAll());
+    }
 
     auto &settings = *m_ctx->settings();
     QLocale::setDefault(QLocale(LanguageUtils::toCode(settings.language())));
@@ -44,7 +48,12 @@ int Application::start() {
     auto &repository = *m_ctx->weatherRepository();
     GetWeatherUseCase weatherUseCase(repository);
 
-    auto refresh = [this, &weatherUseCase, lat, lon, tz]() {
+    auto refresh = [this, &weatherUseCase]() {
+        const auto settings = m_ctx->settings();
+        const double lat = settings->latitude();
+        const double lon = settings->longitude();
+        const QString tz = "auto";
+
         try {
             const auto f = weatherUseCase(lat, lon, tz, 10);
             m_mainWindow->displayForecast(f, QString("lat=%1 lon=%2").arg(lat).arg(lon));
@@ -86,6 +95,8 @@ int Application::start() {
     connect(m_ctx->updateScheduler().get(), &UpdateScheduler::update, this, &Application::fetchWeather);
     QMetaObject::invokeMethod(this, &Application::fetchWeather, Qt::QueuedConnection);
 
+    connect(m_mainWindow.get(), &MainWindow::refreshRequested, this, &Application::fetchWeather);
+
     // show window (comment if you don't want to show it after start)
     m_mainWindow->show();
     Logger::info("Main window shown.");
@@ -109,7 +120,7 @@ void Application::fetchWeather() {
     const QString tz = "auto"; // change in the future, by adding new method to SettingsManager: timezone()
 
     try {
-        auto forecast = repository.get(lat, lon ,tz, 60);
+        const auto forecast = repository.get(lat, lon ,tz, 60);
         Logger::info("Application: weather data fetched successfully.");
 
         // update UI

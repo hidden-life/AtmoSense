@@ -7,7 +7,7 @@
 
 NetworkClient::NetworkClient() = default;
 
-QJsonDocument NetworkClient::getJson(const QUrl &url, int timeout) {
+QJsonDocument NetworkClient::getJson(const QUrl &url, const int timeout) {
     QNetworkRequest request(url);
     request.setRawHeader("Accept", "application/json");
 

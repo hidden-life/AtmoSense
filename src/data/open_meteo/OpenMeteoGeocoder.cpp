@@ -1,37 +1,66 @@
 #include <QUrlQuery>
 #include <QJsonObject>
 #include <QJsonArray>
+#include  <QUrl>
 
 #include "OpenMeteoGeocoder.h"
+
+#include "Logger.h"
 
 OpenMeteoGeocoder::OpenMeteoGeocoder(NetworkClient &client) : m_client(client) {}
 
 std::vector<Location> OpenMeteoGeocoder::search(const QString &query, const QString &lang, int count) {
-    QUrl url("https://geocoding-api.open-meteo.com/v1/search");
-    QUrlQuery q;
-    q.addQueryItem("name", query);
-    q.addQueryItem("count", QString::number(count));
-    q.addQueryItem("lang", lang);
-    url.setQuery(q);
-
-    QJsonDocument doc = m_client.getJson(url);
     std::vector<Location> result;
-    auto obj = doc.object();
-    auto resultsArr = obj.value("results").toArray();
-    result.reserve(resultsArr.size());
+    if (query.trimmed().isEmpty()) {
+        return result;
+    }
 
-    for (const auto &v : resultsArr) {
-        auto o = v.toObject();
+    const QString url = QString(
+        "https://geocoding-api.open-meteo.com/v1/search?name=%1&count=%2&language=%3&format=json"
+        ).arg(QUrl::toPercentEncoding(query)).arg(count).arg(lang.isEmpty() ? "en" : lang)
+    ;
+
+    // process request
+    const auto data = m_client.getJson(url);
+    if (data.isEmpty()) {
+        Logger::warn("OpenMeteoGeocoder: Failed to get search result for <" + query + ">");
+        return result;
+    }
+
+    const auto doc = QJsonDocument::fromJson(data.toJson());
+    if (!doc.isObject()) {
+        return result;
+    }
+
+    const auto root = doc.object();
+    if (!root.contains("results")) {
+        return result;
+    }
+
+    const auto arr = root["results"].toArray();
+    result.reserve(arr.size());
+
+    for (const auto &val : arr) {
+        const auto obj = val.toObject();
         Location location;
-        location.name = o.value("name").toString();
-        location.country = o.value("country").toString();
-        location.region = o.value("admin1").toString();
-        location.timezone = o.value("timezone").toString();
-        location.latitude = o.value("latitude").toDouble();
-        location.longitude = o.value("longitude").toDouble();
+        location.name = obj.value("name").toString();
+        location.latitude = obj.value("latitude").toDouble();
+        location.longitude = obj.value("longitude").toDouble();
+        location.timezone = obj.value("timezone").toString();
+        location.country = obj.value("country").toString();
+        location.region = QString("[%1, %2, %3, %4]").
+            arg(obj.value("admin1").toString()).
+            arg(obj.value("admin2").toString()).
+            arg(obj.value("admin3").toString()).
+            arg(obj.value("admin4").toString())
+        ;
 
-        result.push_back(std::move(location));
+        result.push_back(location);
     }
 
     return result;
+}
+
+std::vector<Location> OpenMeteoGeocoder::search(const QString &text) {
+    return search(text, "en", 10);
 }

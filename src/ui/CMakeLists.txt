@@ -1,16 +1,34 @@
 set(SOURCES
         MainWindow.cpp
+        # dialogs
         SettingsDialog.cpp
+        LocationSearchDialog.cpp
+
+        # widgets
+        WeatherSummaryWidget.cpp
+        DailyForecastWidget.cpp
+        HourlyForecastWidget.cpp
 )
 
 set(HEADERS
         MainWindow.h
+        # dialogs
         SettingsDialog.h
+        LocationSearchDialog.h
+
+        # widgets
+        WeatherSummaryWidget.h
+        DailyForecastWidget.h
+        HourlyForecastWidget.h
 )
 
 set(UI_FILES
         MainWindow.ui
         SettingsDialog.ui
+        LocationSearchDialog.ui
+        WeatherSummaryWidget.ui
+        DailyForecastWidget.ui
+        HourlyForecastWidget.ui
 )
 
 add_library(ui ${SOURCES} ${HEADERS} ${UI_FILES})

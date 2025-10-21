@@ -1,0 +1,9 @@
+<ui version="4.0">
+ <class>DailyForecastWidget</class>
+ <widget class="QWidget" name="DailyForecastWidget">
+  <layout class="QVBoxLayout" name="vbox">
+   <item><widget class="QLabel" name="titleLabel"><property name="text"><string>Daily forecast</string></property><property name="styleSheet"><string notr="true">font-size:16px;font-weight:600;padding-left:6px;</string></property></widget></item>
+   <item><widget class="QWidget" name="listContainerWidget"><layout class="QVBoxLayout" name="listLayout"/></widget></item>
+  </layout>
+ </widget>
+</ui>
