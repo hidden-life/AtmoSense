@@ -21,6 +21,7 @@ MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
 
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::onRefreshButtonClicked);
     connect(ui->changeLocationButton, &QPushButton::clicked, this, &MainWindow::onChangeLocationButtonClicked);
+    connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::onSettingsButtonClicked);
 
     restoreLastLocation();
 
@@ -112,6 +113,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 void MainWindow::restoreLastLocation() {
     if (const auto location = m_ctx->settings()->lastLocation(); !location.name.isEmpty()) {
         ui->locationLabel->setText(location.name);
+    } else {
+        m_locationLabelText.clear();
+        ui->locationLabel->setText(tr("Select location"));
     }
 }
 
@@ -128,4 +132,8 @@ void MainWindow::onChangeLocationButtonClicked() {
 
 void MainWindow::onRefreshButtonClicked() {
     emit refreshRequested();
+}
+
+void MainWindow::onSettingsButtonClicked() {
+    emit openSettingsRequested();
 }

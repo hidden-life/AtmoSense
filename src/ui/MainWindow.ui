@@ -28,6 +28,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="settingsButton">
+        <property name="text">
+         <string>Settings</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="hSpacer">
         <property name="orientation">
          <enum>Qt::Orientation::Horizontal</enum>

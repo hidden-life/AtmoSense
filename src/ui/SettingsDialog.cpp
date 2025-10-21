@@ -67,11 +67,11 @@ void SettingsDialog::populateProviders() {
     }
 
     // enable/disable based on count
-    const bool multipleWeatherProviders = m_ctx->weatherProviderCount() > 1;
-    const bool multipleGeocoderProviders = m_ctx->geocoderProviderCount() > 1;
+    ui->providerComboBox->setEnabled(m_ctx->weatherProviderCount() > 1);
+    ui->geocoderComboBox->setEnabled(m_ctx->geocoderProviderCount() > 1);
 
-    ui->providerComboBox->setEnabled(multipleWeatherProviders);
-    ui->geocoderComboBox->setEnabled(multipleGeocoderProviders);
+    if (!m_ctx->weatherProviders().empty()) ui->providerComboBox->setCurrentIndex(0);
+    if (!m_ctx->geocoderProviders().empty()) ui->geocoderComboBox->setCurrentIndex(0);
 
     // set an active as default
     if (auto activeWeatherProvider = m_ctx->currentWeatherProvider()) {

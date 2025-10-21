@@ -96,6 +96,7 @@ int Application::start() {
     QMetaObject::invokeMethod(this, &Application::fetchWeather, Qt::QueuedConnection);
 
     connect(m_mainWindow.get(), &MainWindow::refreshRequested, this, &Application::fetchWeather);
+    connect(m_mainWindow.get(), &MainWindow::openSettingsRequested, this, &Application::showSettings);
 
     // show window (comment if you don't want to show it after start)
     m_mainWindow->show();

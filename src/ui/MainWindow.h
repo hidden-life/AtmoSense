@@ -25,9 +25,11 @@ public slots:
 private slots:
     void onChangeLocationButtonClicked();
     void onRefreshButtonClicked();
+    void onSettingsButtonClicked();
 
 signals:
     void refreshRequested();
+    void openSettingsRequested();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -35,6 +37,8 @@ protected:
 private:
     Ui::MainWindow *ui;
     ApplicationContext *m_ctx;
+
+    QString m_locationLabelText;
 
     void restoreLastLocation();
 };
