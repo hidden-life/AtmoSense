@@ -1,9 +1,13 @@
 #include <QMessageBox>
 #include <QPushButton>
+#include <QMenu>
 #include <QCloseEvent>
+#include <QToolButton>
 
 #include "MainWindow.h"
+
 #include "./ui_mainwindow.h"
+#include "DailyForecastWidget.h"
 #include "LocationSearchDialog.h"
 #include "Logger.h"
 #include "SettingsManager.h"
@@ -24,7 +28,7 @@ MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
     connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::onSettingsButtonClicked);
 
     restoreLastLocation();
-
+    rebuildRecents();
     statusBar()->showMessage(tr("Ready"));
 }
 
@@ -80,7 +84,10 @@ void MainWindow::updateWeather(const Forecast &forecast) {
         ui->dailyForecastWidget->update(forecast.daily);
     }
 
-    statusBar()->showMessage(tr("Updated: %1").arg(QTime::currentTime().toString("HH:mm")));
+    // date and time format
+    const QString shortDateTimeFormat = QLocale::system().dateTimeFormat(QLocale::ShortFormat);
+    const QString dt = QDateTime::currentDateTime().toString(shortDateTimeFormat);
+    statusBar()->showMessage(tr("Updated at: %1").arg(dt), 3000);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -116,6 +123,32 @@ void MainWindow::closeEvent(QCloseEvent *event) {
     QMainWindow::closeEvent(event);
 }
 
+void MainWindow::rebuildRecents() {
+    auto *menu = new QMenu(this);
+    const auto recents = m_ctx->settings()->recentLocations();
+    if (recents.empty()) {
+        auto *action = new QAction(tr("No recent locations."), menu);
+        action->setEnabled(false);
+        menu->addAction(action);
+    } else {
+        for (const auto &recent : recents) {
+            auto *act = new QAction(QString("%1 - %2%3").arg(recent.name).arg(recent.country).arg(recent.region.isEmpty() ? "" : (", " + recent.region)), menu);
+            connect(act, &QAction::triggered, this, [this, recent] {
+                m_ctx->settings()->setLastLocation(recent);
+                m_ctx->settings()->addRecentLocation(recent);
+                ui->locationLabel->setText(recent.name);
+
+                emit refreshRequested();
+            });
+
+            menu->addAction(act);
+        }
+
+        ui->recentButton->setMenu(menu);
+        ui->recentButton->setPopupMode(QToolButton::InstantPopup);
+    }
+}
+
 void MainWindow::restoreLastLocation() {
     const auto location = m_ctx->settings()->lastLocation();
     if (!location.name.isEmpty()) {
@@ -133,6 +166,9 @@ void MainWindow::onChangeLocationButtonClicked() {
         m_ctx->settings()->setLastLocation(location);
         m_locationLabelText = location.name;
         ui->locationLabel->setText(location.name);
+
+        m_ctx->settings()->addRecentLocation(location);
+        rebuildRecents();
 
         emit refreshRequested();
     }

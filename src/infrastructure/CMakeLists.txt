@@ -5,6 +5,7 @@ set(SOURCES
         PlatformUtils.cpp
         ThemeManager.cpp
         TranslationManager.cpp
+        UnitFormatter.cpp
 )
 
 set(HEADERS
@@ -14,6 +15,7 @@ set(HEADERS
         PlatformUtils.h
         ThemeManager.h
         TranslationManager.h
+        UnitFormatter.h
 )
 
 add_library(infrastructure ${SOURCES} ${HEADERS})

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>342</width>
+    <width>423</width>
     <height>98</height>
    </rect>
   </property>
@@ -46,6 +46,17 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="recentButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../../resources/resources.qrc">
+          <normaloff>:/icons/clock.png</normaloff>:/icons/clock.png</iconset>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="changeLocationButton">
@@ -93,6 +104,8 @@
    <header>dailyforecastwidget.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

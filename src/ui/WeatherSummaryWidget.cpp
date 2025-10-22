@@ -2,8 +2,10 @@
 #include "./ui_weathersummarywidget.h"
 #include "ApplicationContext.h"
 #include "Logger.h"
+#include "SettingsManager.h"
 #include "ThemeManager.h"
-#include "../application/IconMapper.h"
+#include "UnitFormatter.h"
+#include "model/UnitSystem.h"
 
 WeatherSummaryWidget::WeatherSummaryWidget(QWidget *parent) : QWidget(parent), ui(new Ui::WeatherSummaryWidget) {
     ui->setupUi(this);
@@ -21,13 +23,15 @@ void WeatherSummaryWidget::setContext(ApplicationContext *ctx) {
 void WeatherSummaryWidget::update(const Weather &weather) {
     if (!m_ctx) {
         Logger::warn("WeatherSummaryWidget::update: context is null.");
+        return;
     }
 
     const bool isDark = m_ctx->themeManager()->isDarkTheme();
-    const QIcon icon = IconMapper::map(weather.weatherCode, isDark);
+    const QIcon icon = m_ctx->iconMapper()->map(weather.weatherCode, isDark);
+    const UnitSystem unitSystem = m_ctx->settings()->unitSystem();
 
     ui->iconLabel->setPixmap(icon.pixmap(96, 96));
-    ui->temperatureLabel->setText(QString::number(weather.temperature, 'f', 1) + "°C"); // @todo Change to temperature unit from settings!
+    ui->temperatureLabel->setText(UnitFormatter::temperature(weather.temperature, unitSystem));
 
     QString description;
     switch (weather.weatherCode) {
@@ -45,6 +49,15 @@ void WeatherSummaryWidget::update(const Weather &weather) {
         .arg(weather.humidity, 0, 'f', 0)
         .arg(weather.windSpeed, 0, 'f', 1)
         .arg(weather.pressure, 0, 'f', 0));
+
+    // beauty animation
+    auto *effect = new QGraphicsOpacityEffect(this);
+    setGraphicsEffect(effect);
+    auto *animation = new QPropertyAnimation(effect, "opacity", this);
+    animation->setDuration(250);
+    animation->setStartValue(0.0);
+    animation->setEndValue(1.0);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 WeatherSummaryWidget::~WeatherSummaryWidget() {

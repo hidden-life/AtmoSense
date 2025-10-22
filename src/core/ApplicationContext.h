@@ -5,6 +5,8 @@
 #include <QDir>
 #include <memory>
 
+#include "application/IconMapper.h"
+
 class NetworkClient;
 class SettingsManager;
 class ICacheStore;

@@ -1,3 +1,6 @@
+#include <QJsonObject>
+#include <QJsonArray>
+
 #include "SettingsManager.h"
 
 SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings("Home Labs", "AtmoSense") {
@@ -137,6 +140,82 @@ void SettingsManager::setGeocoderProvider(GeocoderProviderId id) {
     m_settings.setValue("providers/geocoder", toString(id));
 
     emit geocoderProviderChanged(id);
+    emit settingsChanged();
+}
+
+UnitSystem SettingsManager::unitSystem() const {
+    const QString val = m_settings.value("units/system", "metric").toString();
+
+    return val.compare("imperial", Qt::CaseInsensitive) == 0 ? UnitSystem::Metric : UnitSystem::Imperial;
+}
+
+void SettingsManager::setUnitSystem(UnitSystem sys) {
+    m_settings.setValue("units/system", toString(sys));
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
+static QJsonObject toJson(const Location &location) {
+    QJsonObject obj;
+    obj["name"] = location.name;
+    obj["lat"] = location.latitude;
+    obj["lon"] = location.longitude;
+    obj["country"] = location.country;
+    obj["region"] = location.region;
+    obj["tz"] = location.timezone;
+
+    return obj;
+}
+
+static Location fromJson(const QJsonObject &json) {
+    Location location;
+    location.name = json["name"].toString();
+    location.latitude = json["lat"].toDouble();
+    location.longitude = json["lon"].toDouble();
+    location.country = json["country"].toString();
+    location.region = json["region"].toString();
+    location.timezone = json["tz"].toString();
+
+    return location;
+}
+
+std::vector<Location> SettingsManager::recentLocations(const int max) const {
+    const QByteArray raw = m_settings.value("location/recent", QByteArray()).toByteArray();
+    std::vector<Location> locations;
+    if (raw.isEmpty()) return locations;
+
+    const QJsonDocument doc = QJsonDocument::fromJson(raw);
+    if (!doc.isArray()) return locations;
+
+    const QJsonArray arr = doc.array();
+    locations.reserve(std::min<int>(max, arr.size()));
+    for (int i = 0; i < arr.size(); ++i) {
+        if (arr[i].isObject()) locations.push_back(fromJson(arr[i].toObject()));
+    }
+
+    return locations;
+}
+
+void SettingsManager::addRecentLocation(const Location &location) {
+    auto list = recentLocations(50);
+    auto same = [&](const Location &loc) {
+        return qFuzzyCompare(loc.latitude, location.latitude) && qFuzzyCompare(loc.longitude, location.longitude);
+    };
+
+    list.erase(std::remove_if(list.begin(), list.end(), same), list.end());
+    list.insert(list.begin(), location);
+
+    if (list.size() > 8) list.resize(8);
+
+    // serialize
+    QJsonArray arr;
+    for (const auto &l : list) arr.push_back(toJson(l));
+    const QJsonDocument doc(arr);
+
+    m_settings.setValue("location/recent", doc.toJson(QJsonDocument::Compact));
+    m_settings.sync();
+
     emit settingsChanged();
 }
 

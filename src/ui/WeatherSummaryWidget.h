@@ -2,6 +2,8 @@
 #define WEATHERSUMMARYWIDGET_H
 
 #include <QWidget>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
 
 #include "model/Weather.h"
 

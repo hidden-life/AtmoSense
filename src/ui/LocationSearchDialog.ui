@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>LocationSearchDialog</class>
  <widget class="QDialog" name="LocationSearchDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>280</width>
+    <height>284</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Find Location</string>
   </property>
@@ -12,17 +20,15 @@
    <property name="leftMargin">
     <number>12</number>
    </property>
-   <property name="rightMargin">
+   <property name="topMargin">
     <number>12</number>
    </property>
-   <property name="topMargin">
+   <property name="rightMargin">
     <number>12</number>
    </property>
    <property name="bottomMargin">
     <number>12</number>
    </property>
-
-   <!-- Search bar -->
    <item>
     <layout class="QHBoxLayout" name="searchLayout">
      <item>
@@ -37,53 +43,56 @@
        <property name="text">
         <string>×</string>
        </property>
-       <property name="maximumWidth">
-        <number>28</number>
-       </property>
       </widget>
      </item>
     </layout>
    </item>
-
-   <!-- Results -->
    <item>
     <widget class="QListWidget" name="resultsList">
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+     </property>
      <property name="uniformItemSizes">
       <bool>false</bool>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
      </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="selectionMode">
-      <enum>QAbstractItemView::SingleSelection</enum>
-     </property>
     </widget>
    </item>
-
-   <!-- Buttons -->
    <item>
     <layout class="QHBoxLayout" name="buttonsLayout">
      <item>
       <spacer name="spacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
-        <size><width>40</width><height>20</height></size>
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
        </property>
       </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="cancelButton">
-       <property name="text"><string>Cancel</string></property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="okButton">
-       <property name="text"><string>OK</string></property>
+       <property name="text">
+        <string>OK</string>
+       </property>
       </widget>
      </item>
     </layout>

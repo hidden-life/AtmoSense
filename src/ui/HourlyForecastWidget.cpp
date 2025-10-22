@@ -2,7 +2,7 @@
 #include "./ui_hourlyforecastwidget.h"
 #include "SettingsManager.h"
 #include "ThemeManager.h"
-#include "../application/IconMapper.h"
+#include "UnitFormatter.h"
 
 HourlyForecastWidget::HourlyForecastWidget(QWidget *parent) : QWidget(parent), ui(new Ui::HourlyForecastWidget) {
     ui->setupUi(this);
@@ -47,12 +47,14 @@ void HourlyForecastWidget::update(const std::vector<Weather> &hourly) {
         auto *v = new QVBoxLayout(card);
         v->setAlignment(Qt::AlignCenter);
 
-        const QIcon icon = IconMapper::map(h.weatherCode, isDark);
+        const QIcon icon = m_ctx->iconMapper()->map(h.weatherCode, isDark);
         auto *iconLabel = new QLabel();
         iconLabel->setPixmap(icon.pixmap(48, 48));
 
+        const UnitSystem unitSystem = m_ctx->settings()->unitSystem();
+
         auto *timeLabel = new QLabel(h.timestamp.toLocalTime().toString("HH:mm"));
-        auto *temperatureLabel = new QLabel(QString::number(h.temperature, 'f', 1) + "°C");
+        auto *temperatureLabel = new QLabel(UnitFormatter::temperature(h.temperature, unitSystem));
         timeLabel->setAlignment(Qt::AlignCenter);
         temperatureLabel->setAlignment(Qt::AlignCenter);
         temperatureLabel->setStyleSheet("font-weight: 500;");

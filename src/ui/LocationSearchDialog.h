@@ -21,13 +21,14 @@ public:
     explicit LocationSearchDialog(ApplicationContext *ctx, QWidget *parent = nullptr);
     ~LocationSearchDialog() override;
 
+    void populateRecentLocations();
+    void performSearch(const QString &searchTxt);
+
     [[nodiscard]]
     Location selected() const { return m_selected; }
 
 private slots:
     void onSearchTextChanged(const QString &text);
-    void onItemDoubleClicked();
-    void performSearch();
     void onClearClicked();
 
 private:
@@ -36,8 +37,6 @@ private:
     Location m_selected;
     std::vector<Location> m_results;
     QTimer m_debounceTimer;
-
-    void showResults(const std::vector<Location> &results);
 };
 
 

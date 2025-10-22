@@ -7,6 +7,7 @@
 #include "model/Location.h"
 #include "model/Theme.h"
 #include "model/Provider.h"
+#include "model/UnitSystem.h"
 
 class SettingsManager final : public QObject {
     Q_OBJECT
@@ -74,6 +75,14 @@ public:
     [[nodiscard]]
     GeocoderProviderId geocoderProvider() const;
     void setGeocoderProvider(GeocoderProviderId geocoderProvider);
+
+    // unit system
+    UnitSystem unitSystem() const;
+    void setUnitSystem(UnitSystem sys);
+
+    // recent locations
+    std::vector<Location> recentLocations(int max = 8) const;
+    void addRecentLocation(const Location &location); // deduplication and cutting using max
 
 signals:
     void settingsChanged();

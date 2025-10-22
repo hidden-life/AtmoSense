@@ -42,5 +42,10 @@ target_link_libraries(ui PRIVATE
         infrastructure
 )
 
-target_include_directories(ui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(ui PUBLIC ${CMAKE_SOURCE_DIR}/src/core)
+target_include_directories(ui PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_SOURCE_DIR}/src/core
+        ${CMAKE_SOURCE_DIR}/src
+)
+#target_include_directories(ui PUBLIC ${CMAKE_SOURCE_DIR}/src/core)
+#target_include_directories(ui PUBLIC ${CMAKE_SOURCE_DIR}/src)

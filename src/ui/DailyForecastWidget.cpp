@@ -1,8 +1,10 @@
 #include "DailyForecastWidget.h"
 #include "./ui_dailyforecastwidget.h"
 #include "ApplicationContext.h"
+#include "SettingsManager.h"
 #include "ThemeManager.h"
-#include "../application/IconMapper.h"
+#include "UnitFormatter.h"
+#include "model/UnitSystem.h"
 
 DailyForecastWidget::DailyForecastWidget(QWidget *parent) : QWidget(parent), ui(new Ui::DailyForecastWidget) {
     ui->setupUi(this);
@@ -37,12 +39,14 @@ void DailyForecastWidget::update(const std::vector<Weather> &daily) {
         auto *h = new QHBoxLayout(row);
         h->setContentsMargins(8, 4, 8, 4);
 
-        const QIcon icon = IconMapper::map(d.weatherCode, isDark);
+        const QIcon icon = m_ctx->iconMapper()->map(d.weatherCode, isDark);
         auto *iconLabel = new QLabel();
         iconLabel->setPixmap(icon.pixmap(28, 28));
 
+        const UnitSystem unitSystem = m_ctx->settings()->unitSystem();
+
         auto *dateLabel = new QLabel(d.timestamp.toLocalTime().toString("ddd, dd MMM"));
-        auto *temperatureLabel = new QLabel(QString("%1 °C").arg(d.temperature, 0, 'f', 1));
+        auto *temperatureLabel = new QLabel(UnitFormatter::temperature(d.temperature, unitSystem));
 
         h->addWidget(iconLabel);
         h->addWidget(dateLabel);
