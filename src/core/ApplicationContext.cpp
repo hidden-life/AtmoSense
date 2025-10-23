@@ -70,7 +70,7 @@ void ApplicationContext::init() {
     m_cache = std::make_shared<FileCacheStore>(cacheDir());
 
     // create providers using factories
-    m_weatherProviders = WeatherProviderFactory::createAll(*m_networkClient);
+    m_weatherProviders = WeatherProviderFactory::createAll(*m_networkClient, *m_settings);
     m_geocoderProviders = GeocoderFactory::createAll(*m_networkClient);
 
     // first creation based on settings and set to m_currentWeatherProvider & m_currentGeocoderProvider

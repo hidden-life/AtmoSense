@@ -27,6 +27,7 @@ private slots:
     void onChangeLocationButtonClicked();
     void onRefreshButtonClicked();
     void onSettingsButtonClicked();
+    void onSettingsChanged();
 
 signals:
     void refreshRequested();
@@ -40,6 +41,7 @@ private:
     ApplicationContext *m_ctx;
 
     QString m_locationLabelText;
+    Forecast m_lastForecast;
 
     void rebuildRecents();
 };

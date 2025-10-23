@@ -6,7 +6,7 @@
 
 #include "Logger.h"
 
-static QString cacheKey(double lat, double lon, const QString &tz) {
+static QString cacheKey(const double lat, const double lon, const QString &tz) {
     return QString("forecast:%1,%2,%3").arg(lat, 0, 'f', 4).arg(lon, 0, 'f', 4).arg(tz);
 }
 
@@ -19,7 +19,29 @@ static QJsonObject serialize(const Weather &w) {
     obj["c"] = w.weatherCode;
     obj["ts"] = w.timestamp.toString(Qt::ISODate);
 
+    if (w.precipitation.has_value()) obj["pr"] = *w.precipitation;
+    if (w.precipitationProbability.has_value()) obj["pp"] = *w.precipitationProbability;
+    if (w.uvIndex.has_value()) obj["uv"] = *w.uvIndex;
+
     return obj;
+}
+
+static QJsonObject serializeAirQuality(const AirQuality &q) {
+    QJsonObject obj;
+    obj["ts"] = q.timestamp.toString(Qt::ISODate);
+    if (q.pm10.has_value()) obj["pm10"] = *q.pm10;
+    if (q.pm2_5.has_value()) obj["pm25"] = *q.pm2_5;
+
+    return obj;
+}
+
+static AirQuality parseAirQuality(const QJsonObject &obj) {
+    AirQuality airQuality;
+    airQuality.timestamp = QDateTime::fromString(obj.value("ts").toString(), Qt::ISODate);
+    if (obj.contains("pm10")) airQuality.pm10 = obj.value("pm10").toDouble();
+    if (obj.contains("pm25")) airQuality.pm2_5 = obj.value("pm25").toDouble();
+
+    return airQuality;
 }
 
 static Weather parse(const QJsonObject &obj) {
@@ -30,6 +52,10 @@ static Weather parse(const QJsonObject &obj) {
     w.pressure = obj.value("p").toDouble();
     w.weatherCode = obj.value("c").toInt();
     w.timestamp = QDateTime::fromString(obj.value("ts").toString(), Qt::ISODate);
+
+    if (obj.contains("pr")) w.precipitation = obj.value("pr").toDouble();
+    if (obj.contains("pp")) w.precipitationProbability = obj.value("pp").toDouble();
+    if (obj.contains("uv")) w.uvIndex = obj.value("uv").toDouble();
 
     return w;
 }
@@ -55,7 +81,11 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
                 forecast.daily.push_back(parse(val.toObject()));
             }
 
-            Logger::info("Cache git for forecast: <" + key + ">.");
+            if (root.contains("aq") && root.value("aq").isObject()) {
+                forecast.currentAirQuality = parseAirQuality(root.value("aq").toObject());
+            }
+
+            Logger::info("Cache hit for forecast: <" + key + ">.");
             return forecast;
         }
     }
@@ -106,6 +136,10 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
         dailyArr.push_back(serialize(val));
     }
     obj["daily"] = dailyArr;
+
+    if (forecast.currentAirQuality.has_value()) {
+        obj["aq"] = serializeAirQuality(*forecast.currentAirQuality);
+    }
 
     const QJsonDocument out(obj);
     const QByteArray serialized = out.toJson(QJsonDocument::Compact);

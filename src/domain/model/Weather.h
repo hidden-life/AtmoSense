@@ -11,6 +11,10 @@ struct Weather {
     int weatherCode = 0;
 
     QDateTime timestamp;
+
+    std::optional<double> precipitation;
+    std::optional<double> precipitationProbability;
+    std::optional<double> uvIndex;
 };
 
 #endif //DOMAIN_MODEL_WEATHER_H

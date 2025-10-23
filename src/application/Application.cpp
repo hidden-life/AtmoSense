@@ -109,7 +109,7 @@ int Application::start() {
 void Application::showSettings() {
     auto tr = m_ctx->translation();
     tr->blockSignals(true);
-    SettingsDialog settingsDialog(m_ctx->settings(), m_ctx.get(), m_mainWindow.get());
+    SettingsDialog settingsDialog(m_ctx.get(), m_mainWindow.get());
     settingsDialog.exec();
     tr->blockSignals(false);
 }

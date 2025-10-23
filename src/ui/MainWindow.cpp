@@ -28,6 +28,9 @@ MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
     connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::onSettingsButtonClicked);
 
     restoreLastLocation();
+
+    connect(m_ctx->settings().get(), &SettingsManager::settingsChanged, this, &MainWindow::onSettingsChanged);
+
     rebuildRecents();
     statusBar()->showMessage(tr("Ready"));
 }
@@ -66,12 +69,14 @@ void MainWindow::retranslate() {
 
 void MainWindow::updateWeather(const Forecast &forecast) {
     Logger::info("MainWindow: updating weather UI.");
+    m_lastForecast = forecast;
 
     if (!m_ctx) {
         Logger::warn("MainWindow: context is null, skipping update process.");
         return;
     }
 
+    // update summary widget info
     ui->weatherSummaryWidget->update(forecast.weather);
 
     // update hourly weather data
@@ -180,4 +185,10 @@ void MainWindow::onRefreshButtonClicked() {
 
 void MainWindow::onSettingsButtonClicked() {
     emit openSettingsRequested();
+}
+
+void MainWindow::onSettingsChanged() {
+    if (!m_lastForecast.hourly.empty() || !m_lastForecast.daily.empty() || m_lastForecast.weather.timestamp.isValid()) {
+        updateWeather(m_lastForecast);
+    }
 }

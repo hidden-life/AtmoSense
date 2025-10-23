@@ -3,6 +3,8 @@
 
 #include "SettingsManager.h"
 
+#include "Logger.h"
+
 SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings("Home Labs", "AtmoSense") {
     QSettings::setDefaultFormat(QSettings::IniFormat);
 }
@@ -145,8 +147,8 @@ void SettingsManager::setGeocoderProvider(GeocoderProviderId id) {
 
 UnitSystem SettingsManager::unitSystem() const {
     const QString val = m_settings.value("units/system", "metric").toString();
-
-    return val.compare("imperial", Qt::CaseInsensitive) == 0 ? UnitSystem::Metric : UnitSystem::Imperial;
+    Logger::info(QString("Loaded unit system: %1").arg(val));
+    return val.compare("imperial", Qt::CaseInsensitive) == 0 ? UnitSystem::Imperial : UnitSystem::Metric;
 }
 
 void SettingsManager::setUnitSystem(UnitSystem sys) {
@@ -219,13 +221,48 @@ void SettingsManager::addRecentLocation(const Location &location) {
     emit settingsChanged();
 }
 
+bool SettingsManager::fetchAirQuality() const {
+    return m_settings.value("data/fetch_air_quality", true).toBool();
+}
+
+void SettingsManager::setFetchAirQuality(bool enabled) {
+    m_settings.setValue("data/fetch_air_quality", enabled);
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
+bool SettingsManager::fetchUV() const {
+    return m_settings.value("data/fetch_uv", true).toBool();
+}
+
+void SettingsManager::setFetchUV(bool enabled) {
+    m_settings.setValue("data/fetch_uv", enabled);
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
+bool SettingsManager::fetchPrecipitationProbability() const {
+    return m_settings.value("data/fetch_precip_prob", true).toBool();
+}
+
+void SettingsManager::setFetchPrecipitationProbability(bool enabled) {
+    m_settings.setValue("data/fetch_precip_prob", enabled);
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
 Theme SettingsManager::theme() const {
-    const QString t = m_settings.value("app/theme", "auto").toString();
+    const QString t = m_settings.value("ui/theme", static_cast<int>(Theme::System)).toString();
     return ThemeUtils::fromString(t);
 }
 
 void SettingsManager::setTheme(const Theme theme) {
-    m_settings.setValue("app/theme", ThemeUtils::toString(theme));
+    m_settings.setValue("ui/theme", ThemeUtils::toString(theme));
+    m_settings.sync();
+
     emit settingsChanged();
 }
 

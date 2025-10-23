@@ -5,6 +5,7 @@
 #include <QMetaType>
 
 enum class Theme {
+    System = 0,
     Auto,
     Dark,
     Light,
@@ -20,9 +21,9 @@ namespace ThemeUtils {
                 return "dark";
             case Theme::Light:
                 return "light";
+            default:
+                return "system";
         }
-
-        return "auto";
     }
 
     // from settings naming
@@ -30,6 +31,8 @@ namespace ThemeUtils {
         const QString trimmed = str.toLower().trimmed();
         if (trimmed == "light") return Theme::Light;
         if (trimmed == "dark") return Theme::Dark;
+        if (trimmed == "system") return Theme::System;
+
         return Theme::Auto;
     }
 
@@ -39,9 +42,8 @@ namespace ThemeUtils {
             case Theme::Auto: return "Auto";
             case Theme::Dark: return "Dark";
             case Theme::Light: return "Light";
+            default: return "System";
         }
-
-        return "Auto";
     }
 
     // from UI
@@ -49,6 +51,7 @@ namespace ThemeUtils {
         const QString trimmed = name.toLower().trimmed();
         if (trimmed == "dark") return Theme::Dark;
         if (trimmed == "light") return Theme::Light;
+        if (trimmed == "system") return Theme::System;
 
         return Theme::Auto;
     }
@@ -63,6 +66,10 @@ namespace ThemeUtils {
 
     inline bool isAuto(const Theme theme) {
         return theme == Theme::Auto;
+    }
+
+    inline bool isSystem(const Theme theme) {
+        return theme == Theme::System;
     }
 }
 

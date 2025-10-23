@@ -84,6 +84,15 @@ public:
     std::vector<Location> recentLocations(int max = 8) const;
     void addRecentLocation(const Location &location); // deduplication and cutting using max
 
+    bool fetchAirQuality() const;
+    void setFetchAirQuality(bool enabled);
+
+    bool fetchUV() const;
+    void setFetchUV(bool enabled);
+
+    bool fetchPrecipitationProbability() const;
+    void setFetchPrecipitationProbability(bool enabled);
+
 signals:
     void settingsChanged();
     void hourlyDisplayHoursChanged();

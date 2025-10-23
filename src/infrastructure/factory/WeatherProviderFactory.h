@@ -4,13 +4,14 @@
 #include <memory>
 
 #include "NetworkClient.h"
+#include "SettingsManager.h"
 #include "interfaces/IWeatherProvider.h"
 #include "model/Provider.h"
 
 class WeatherProviderFactory final {
 public:
-    static std::shared_ptr<IWeatherProvider> create(const QString &name, NetworkClient &client);
-    static std::map<QString, std::shared_ptr<IWeatherProvider>> createAll(NetworkClient &client);
+    static std::shared_ptr<IWeatherProvider> create(const QString &name, NetworkClient &client, SettingsManager &settings);
+    static std::map<QString, std::shared_ptr<IWeatherProvider>> createAll(NetworkClient &client, SettingsManager &settings);
 };
 
 #endif //INFRASTRUCTURE_FACTORY_WEATHER_PROVIDER_FACTORY_H

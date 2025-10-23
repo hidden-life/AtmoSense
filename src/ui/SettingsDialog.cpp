@@ -2,10 +2,26 @@
 #include "SettingsManager.h"
 #include "./ui_settingsdialog.h"
 #include "ApplicationContext.h"
+#include "ThemeManager.h"
+#include "model/Provider.h"
 
-SettingsDialog::SettingsDialog(std::shared_ptr<SettingsManager> settings, ApplicationContext *ctx, QWidget *parent) :
-    QDialog(parent), ui(new Ui::SettingsDialog), m_settings(std::move(settings)), m_ctx(ctx) {
+SettingsDialog::SettingsDialog(ApplicationContext *ctx, QWidget *parent) :
+    QDialog(parent), ui(new Ui::SettingsDialog), m_ctx(ctx) {
     ui->setupUi(this);
+
+    const auto settings = m_ctx->settings();
+    // language
+    ui->languageComboBox->clear();
+    ui->languageComboBox->addItem(LanguageUtils::toDisplayName(Language::English), LanguageUtils::toCode(Language::English));
+    ui->languageComboBox->addItem(LanguageUtils::toDisplayName(Language::Ukrainian), LanguageUtils::toCode(Language::Ukrainian));
+    {
+        const QString code = LanguageUtils::toCode(settings->language());
+        int idx = ui->languageComboBox->findData(code);
+        if (idx < 0) {
+            idx = 0;
+        }
+        ui->languageComboBox->setCurrentIndex(idx);
+    }
 
     populateProviders();
 
@@ -14,30 +30,43 @@ SettingsDialog::SettingsDialog(std::shared_ptr<SettingsManager> settings, Applic
     ui->themeComboBox->addItem(ThemeUtils::toDisplayName(Theme::Auto));
     ui->themeComboBox->addItem(ThemeUtils::toDisplayName(Theme::Light));
     ui->themeComboBox->addItem(ThemeUtils::toDisplayName(Theme::Dark));
-
-    // set current theme from settings
-    const Theme currentTheme = m_settings->theme();
-    ui->themeComboBox->setCurrentText(ThemeUtils::toDisplayName(currentTheme));
-
-    ui->tempUnitComboBox->setCurrentText(m_settings->temperatureUnit());
-    ui->windSpeedUnitComboBox->setCurrentText(m_settings->windSpeedUnit());
-    ui->providerComboBox->setCurrentText(m_settings->provider());
-    ui->refreshIntervalSpinBox->setValue(m_settings->refreshInterval());
-
-    // language
-    ui->languageComboBox->clear();
-    ui->languageComboBox->addItem(LanguageUtils::toDisplayName(Language::English), LanguageUtils::toCode(Language::English));
-    ui->languageComboBox->addItem(LanguageUtils::toDisplayName(Language::Ukrainian), LanguageUtils::toCode(Language::Ukrainian));
-
-    const QString currentCode = LanguageUtils::toCode(m_settings->language());
-    if (const int idx = ui->languageComboBox->currentIndex(); idx >= 0) {
-        ui->languageComboBox->setCurrentIndex(idx);
+    {
+        const int val = static_cast<int>(settings->theme());
+        int idx = ui->themeComboBox->findData(val);
+        if (idx < 0) {
+            idx = 0;
+        }
+        ui->themeComboBox->setCurrentIndex(idx);
     }
 
-    const QString selectedCode = ui->languageComboBox->currentData().toString();
-    m_settings->setLanguage(LanguageUtils::fromCode(selectedCode));
+    // // set current theme from settings
+    // const Theme currentTheme = m_settings->theme();
+    // ui->themeComboBox->setCurrentText(ThemeUtils::toDisplayName(currentTheme));
 
-    ui->hourlyDisplaySpinBox->setValue(m_settings->hourlyDisplayHours());
+    ui->providerComboBox->setCurrentText(settings->provider());
+    ui->refreshIntervalSpinBox->setValue(settings->refreshInterval());
+
+    // units
+    ui->unitsComboBox->clear();
+    ui->unitsComboBox->addItem(tr("Metric (°C, m/s, hPa)"), static_cast<int>(UnitSystem::Metric));
+    ui->unitsComboBox->addItem(tr("Imperial (°F, mph, inHg)"), static_cast<int>(UnitSystem::Imperial));
+    {
+        const UnitSystem s = settings->unitSystem();
+        int idx = ui->unitsComboBox->findData(static_cast<int>(s));
+        if (idx < 0) {
+            idx = 0;
+        }
+        ui->unitsComboBox->setCurrentIndex(idx);
+    }
+
+    // data flags
+    ui->fetchAirQualityCheckBox->setChecked(settings->fetchAirQuality());
+    ui->fetchUvCheckBox->setChecked(settings->fetchUV());
+    ui->fetchPrecipProbCheckBox->setChecked(settings->fetchPrecipitationProbability());
+
+    // updates
+    ui->hourlyDisplaySpinBox->setValue(settings->hourlyDisplayHours());
+    ui->refreshIntervalSpinBox->setValue(settings->refreshInterval());
 
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsDialog::onSaveButtonClicked);
     connect(ui->cancelButton, &QPushButton::clicked, this, &SettingsDialog::onCancelButtonClicked);
@@ -91,16 +120,48 @@ void SettingsDialog::populateProviders() {
 }
 
 void SettingsDialog::onSaveButtonClicked() {
-    // save theme
-    const Theme selectedTheme = ThemeUtils::fromDisplayName(ui->themeComboBox->currentText());
-    m_settings->setTheme(selectedTheme);
+    auto settings = m_ctx->settings();
 
-    m_settings->setTemperatureUnit(ui->tempUnitComboBox->currentText());
-    m_settings->setWindSpeedUnit(ui->windSpeedUnitComboBox->currentText());
-    m_settings->setProvider(ui->providerComboBox->currentText());
-    m_settings->setRefreshInterval(ui->refreshIntervalSpinBox->value());
-    m_settings->setLanguage(LanguageUtils::fromCode(ui->languageComboBox->currentData().toString()));
-    m_settings->setHourlyDisplayHours(ui->hourlyDisplaySpinBox->value());
+    // language block
+    {
+        const QString code = ui->languageComboBox->currentData().toString();
+        const auto lang = LanguageUtils::fromCode(code);
+        settings->setLanguage(lang);
+    }
+
+    // theme block
+    {
+        const auto theme = static_cast<Theme>(ui->themeComboBox->currentData().toInt());
+        m_ctx->themeManager()->setTheme(theme);
+    }
+
+    // providers
+    if (ui->providerComboBox->isEnabled()) {
+        const QString name = ui->providerComboBox->currentText();
+        const auto id = toWeatherProvider(name);
+        settings->setWeatherProvider(id);
+    }
+
+    if (ui->geocoderComboBox->isEnabled()) {
+        const QString name = ui->geocoderComboBox->currentText();
+        const auto id = toGeocoderProvider(name);
+        settings->setGeocoderProvider(id);
+    }
+
+     // units block
+    {
+        const auto s = static_cast<UnitSystem>(ui->unitsComboBox->currentData().toInt());
+        settings->setUnitSystem(s);
+    }
+
+    // data flags
+    settings->setFetchAirQuality(ui->fetchAirQualityCheckBox->isChecked());
+    settings->setFetchUV(ui->fetchUvCheckBox->isChecked());
+    settings->setFetchPrecipitationProbability(ui->fetchPrecipProbCheckBox->isChecked());
+
+    // updates
+    settings->setHourlyDisplayHours(ui->hourlyDisplaySpinBox->value());
+    settings->setRefreshInterval(ui->refreshIntervalSpinBox->value());
 
     accept();
 }

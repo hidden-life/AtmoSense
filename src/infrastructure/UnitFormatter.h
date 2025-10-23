@@ -10,6 +10,9 @@ public:
     static QString temperature(double celsius, UnitSystem s, int precision = 1);
     static QString windSpeed(double ms, UnitSystem s, int precision = 1);
     static QString pressure(double h, UnitSystem s, int precision = 0);
+    static QString precipitation(double mm, UnitSystem s, int precision = 1);
+    static QString uv(double index, int precision = 1);
+    static QString probability(double p, int precision = 0);
 };
 
 #endif //INFRASTRUCTURE_UNIT_FORMATTER_H
