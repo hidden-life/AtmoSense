@@ -37,7 +37,7 @@ int Application::start() {
         qApp->setStyleSheet(qss.readAll());
     }
 
-    auto &settings = *m_ctx->settings();
+    const auto &settings = *m_ctx->settings();
     QLocale::setDefault(QLocale(LanguageUtils::toCode(settings.language())));
 
     // start location, by default Kyiv
@@ -68,7 +68,7 @@ int Application::start() {
 
     refresh();
 
-    int minutes = settings.refreshInterval();
+    const int minutes = settings.refreshInterval();
     auto *timer = new QTimer(&m_app);
     connect(timer, &QTimer::timeout, &m_app, refresh);
     timer->start(minutes * 60 * 1000);
@@ -136,7 +136,7 @@ void Application::fetchWeather() {
         // update tray icon
         if (m_trayService) {
             const bool isDark = m_ctx->themeManager()->isDarkTheme();
-            const auto icon = m_ctx->iconMapper()->map(forecast.weather.weatherCode, isDark);
+            const auto icon = IconMapper::map(forecast.weather.weatherCode, isDark);
             m_trayService->setIcon(icon);
         }
     } catch (const std::exception &e) {
