@@ -1,13 +1,64 @@
+#include <QPropertyAnimation>
+#include <QComboBox>
+
 #include "SettingsDialog.h"
 #include "SettingsManager.h"
 #include "./ui_settingsdialog.h"
 #include "ApplicationContext.h"
 #include "ThemeManager.h"
+#include "interfaces/IGeocoder.h"
+#include "interfaces/IWeatherProvider.h"
 #include "model/Provider.h"
 
 SettingsDialog::SettingsDialog(ApplicationContext *ctx, QWidget *parent) :
     QDialog(parent), ui(new Ui::SettingsDialog), m_ctx(ctx) {
     ui->setupUi(this);
+
+    populateProviders();
+
+    ui->apiKeyLabel->setVisible(false);
+    ui->apiKeyLineEdit->setVisible(false);
+
+    // animation
+    auto toggleVisibility = [&](QWidget *widget, bool isVisible) {
+        auto *animation = new QPropertyAnimation(widget, "maximumHeight", widget);
+        animation->setDuration(200);
+        if (isVisible) {
+            widget->setVisible(true);
+            animation->setStartValue(0);
+            animation->setEndValue(widget->sizeHint().height());
+        } else {
+            animation->setStartValue(widget->height());
+            animation->setEndValue(0);
+            connect(animation, &QPropertyAnimation::finished, widget, [widget]() {
+                widget->setVisible(false);
+            });
+        }
+
+        animation->start(QAbstractAnimation::DeleteWhenStopped);
+    };
+
+    connect(ui->providerComboBox, &QComboBox::currentTextChanged, this, [this, toggleVisibility](const QString &provider) {
+        const auto &providers = m_ctx->weatherProviders();
+        const auto it = std::find_if(providers.begin(), providers.end(), [&](const auto &p) {
+            return p.second->name() == provider;
+        });
+
+        if (it != providers.end()) {
+            const bool keyRequired = it->second->apiKeyRequired();
+
+            toggleVisibility(ui->apiKeyLabel, keyRequired);
+            toggleVisibility(ui->apiKeyLineEdit, keyRequired);
+
+            if (keyRequired) {
+                ui->apiKeyLineEdit->setText(m_ctx->settings()->openWeatherMapAPIKey());
+            }
+        }
+    });
+
+    QMetaObject::invokeMethod(ui->providerComboBox, [this] {
+        emit ui->providerComboBox->currentIndexChanged(ui->providerComboBox->currentIndex());
+    }, Qt::QueuedConnection);
 
     const auto settings = m_ctx->settings();
     // language
@@ -81,46 +132,74 @@ void SettingsDialog::retranslate() {
 }
 
 void SettingsDialog::populateProviders() {
-    //clear before fill
+    ui->apiKeyLabel->setVisible(false);
+    ui->apiKeyLineEdit->setVisible(false);
+
     ui->providerComboBox->clear();
     ui->geocoderComboBox->clear();
 
-    // add available weather providers
+    // add providers
     for (const auto &pair : m_ctx->weatherProviders()) {
-        ui->providerComboBox->addItem(pair.first);
+        auto provider = pair.second;
+        if (!provider) return;
+
+        ui->providerComboBox->addItem(provider->name(), provider->name());
     }
 
-    // add available geocoder providers
     for (const auto &pair : m_ctx->geocoderProviders()) {
-        ui->geocoderComboBox->addItem(pair.first);
+        auto provider = pair.second;
+        if (!provider) return;
+
+        ui->geocoderComboBox->addItem(provider->name(), provider->name());
     }
 
-    // enable/disable based on count
-    ui->providerComboBox->setEnabled(m_ctx->weatherProviderCount() > 1);
-    ui->geocoderComboBox->setEnabled(m_ctx->geocoderProviderCount() > 1);
+    // determine active providers from settings
+    const WeatherProviderId activeWeather = m_ctx->settings()->weatherProvider();
+    const GeocoderProviderId activeGeocoder = m_ctx->settings()->geocoderProvider();
 
-    if (!m_ctx->weatherProviders().empty()) ui->providerComboBox->setCurrentIndex(0);
-    if (!m_ctx->geocoderProviders().empty()) ui->geocoderComboBox->setCurrentIndex(0);
+    const QString activeWeatherName = toString(activeWeather);
+    const QString activeGeocoderName = toString(activeGeocoder);
 
-    // set an active as default
-    if (auto activeWeatherProvider = m_ctx->currentWeatherProvider()) {
-        const QString key = std::find_if(
-                m_ctx->weatherProviders().begin(), m_ctx->weatherProviders().end(),
-                [&](auto &w) { return w.second == activeWeatherProvider; }
-            )->first;
-        ui->providerComboBox->setCurrentText(key);
+    int weatherIdx = ui->providerComboBox->findData(activeWeatherName);
+    if (weatherIdx >= 0) {
+        ui->providerComboBox->setCurrentIndex(weatherIdx);
+    } else if (ui->providerComboBox->currentIndex() > 0) {
+        ui->providerComboBox->setCurrentIndex(0);
     }
 
-    if (auto activeGeocoderProvider = m_ctx->currentGeocoderProvider()) {
-        const QString key = std::find_if(
-                m_ctx->geocoderProviders().begin(), m_ctx->geocoderProviders().end(),
-                [&](auto &g) { return g.second == activeGeocoderProvider; }
-        )->first;
+    int geocoderIdx = ui->geocoderComboBox->findData(activeGeocoderName);
+    if (geocoderIdx >= 0) {
+        ui->geocoderComboBox->setCurrentIndex(geocoderIdx);
+    } else if (ui->geocoderComboBox->currentIndex() > 0) {
+        ui->geocoderComboBox->setCurrentIndex(0);
+    }
+
+    // manage access for combo-boxes
+    ui->providerComboBox->setEnabled(m_ctx->weatherProviderCount() > 0);
+    ui->geocoderComboBox->setEnabled(m_ctx->geocoderProviderCount() > 0);
+
+    updateAPIKeyVisibility();
+}
+
+void SettingsDialog::updateAPIKeyVisibility() {
+    const QString name = ui->providerComboBox->currentData().toString();
+
+    const auto &providers = m_ctx->weatherProviders();
+    auto it = std::find_if(providers.begin(), providers.end(), [&](const auto &p){ return p.second->name() == name; });
+    const bool keyRequired = (it != providers.end()) ? it->second->apiKeyRequired() : false;
+
+    ui->apiKeyLabel->setVisible(keyRequired);
+    ui->apiKeyLineEdit->setVisible(keyRequired);
+
+    if (keyRequired) {
+        ui->apiKeyLineEdit->setText(m_ctx->settings()->openWeatherMapAPIKey());
+    } else {
+        ui->apiKeyLineEdit->clear();
     }
 }
 
 void SettingsDialog::onSaveButtonClicked() {
-    auto settings = m_ctx->settings();
+    const auto settings = m_ctx->settings();
 
     // language block
     {
@@ -162,6 +241,11 @@ void SettingsDialog::onSaveButtonClicked() {
     // updates
     settings->setHourlyDisplayHours(ui->hourlyDisplaySpinBox->value());
     settings->setRefreshInterval(ui->refreshIntervalSpinBox->value());
+
+    // API key
+    if (const QString selectedProvider = ui->providerComboBox->currentText(); selectedProvider.contains("OpenWeatherMap", Qt::CaseInsensitive)) {
+        m_ctx->settings()->setOpenWeatherMapAPIKey(ui->apiKeyLineEdit->text());
+    }
 
     accept();
 }

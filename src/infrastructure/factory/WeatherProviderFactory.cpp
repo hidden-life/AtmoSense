@@ -1,6 +1,8 @@
 #include "WeatherProviderFactory.h"
 
+#include "Logger.h"
 #include "open_meteo/OpenMeteoWeatherProvider.h"
+#include "open_weather_map/OpenWeatherMapWeatherProvider.h"
 
 std::shared_ptr<IWeatherProvider> WeatherProviderFactory::create(const QString &name, NetworkClient &client, SettingsManager &settings) {
     if (name == "OpenMeteo" || name == "Open-Meteo") {
@@ -13,11 +15,16 @@ std::shared_ptr<IWeatherProvider> WeatherProviderFactory::create(const QString &
 std::map<QString, std::shared_ptr<IWeatherProvider>> WeatherProviderFactory::createAll(NetworkClient &client, SettingsManager &settings) {
     std::map<QString, std::shared_ptr<IWeatherProvider>> providers;
 
-    auto openMeteo = std::make_shared<OpenMeteoWeatherProvider>(client, settings);
+    // open meteo
+    providers["open-meteo"] = std::make_shared<OpenMeteoWeatherProvider>(client, settings);
+    // open weather map
+    const QString key = settings.openWeatherMapAPIKey().trimmed();
+    providers["open-weather-map"] = std::make_shared<OpenWeatherMapWeatherProvider>(client, key);
+    if (key.isEmpty()) {
+        Logger::warn("OpenWeatherMap API key missing, provider added. but inactive.");
+    }
 
-    providers.insert({ openMeteo->name(), openMeteo });
-
-    // add another providers here bellow
+    Logger::info(QString("WeatherProviderFactory: total providers = %1").arg(providers.size()));
 
     return providers;
 }

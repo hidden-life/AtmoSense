@@ -77,21 +77,31 @@ public:
     void setGeocoderProvider(GeocoderProviderId geocoderProvider);
 
     // unit system
+    [[nodiscard]]
     UnitSystem unitSystem() const;
     void setUnitSystem(UnitSystem sys);
 
     // recent locations
+    [[nodiscard]]
     std::vector<Location> recentLocations(int max = 8) const;
     void addRecentLocation(const Location &location); // deduplication and cutting using max
 
+    [[nodiscard]]
     bool fetchAirQuality() const;
     void setFetchAirQuality(bool enabled);
 
+    [[nodiscard]]
     bool fetchUV() const;
     void setFetchUV(bool enabled);
 
+    [[nodiscard]]
     bool fetchPrecipitationProbability() const;
     void setFetchPrecipitationProbability(bool enabled);
+
+    // open weather map API key
+    [[nodiscard]]
+    QString openWeatherMapAPIKey() const;
+    void setOpenWeatherMapAPIKey(const QString &key);
 
 signals:
     void settingsChanged();
@@ -100,6 +110,9 @@ signals:
     // providers
     void weatherProviderChanged(WeatherProviderId id);
     void geocoderProviderChanged(GeocoderProviderId id);
+
+    // api key
+    void apiKeyChanged();
 
 private:
     bool m_showClosePrompt = true;

@@ -5,6 +5,8 @@ set(SOURCES
 
         open_meteo/OpenMeteoGeocoder.cpp
         open_meteo/OpenMeteoWeatherProvider.cpp
+
+        open_weather_map/OpenWeatherMapWeatherProvider.cpp
 )
 
 set(HEADERS
@@ -14,6 +16,8 @@ set(HEADERS
 
         open_meteo/OpenMeteoGeocoder.h
         open_meteo/OpenMeteoWeatherProvider.h
+
+        open_weather_map/OpenWeatherMapWeatherProvider.h
 )
 
 add_library(data ${SOURCES} ${HEADERS})

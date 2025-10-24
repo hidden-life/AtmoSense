@@ -254,6 +254,18 @@ void SettingsManager::setFetchPrecipitationProbability(bool enabled) {
     emit settingsChanged();
 }
 
+QString SettingsManager::openWeatherMapAPIKey() const {
+    return m_settings.value("api/open_weather_map", "").toString();
+}
+
+void SettingsManager::setOpenWeatherMapAPIKey(const QString &key) {
+    m_settings.setValue("api/open_weather_map", key.trimmed());
+    m_settings.sync();
+
+    emit apiKeyChanged();
+    emit settingsChanged();
+}
+
 Theme SettingsManager::theme() const {
     const QString t = m_settings.value("ui/theme", static_cast<int>(Theme::System)).toString();
     return ThemeUtils::fromString(t);

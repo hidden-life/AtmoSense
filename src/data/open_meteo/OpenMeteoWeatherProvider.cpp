@@ -163,6 +163,10 @@ Forecast OpenMeteoWeatherProvider::fetch(double lat, double lon, const QString &
     return forecast;
 }
 
+QString OpenMeteoWeatherProvider::id() const {
+    return "open-meteo";
+}
+
 QString OpenMeteoWeatherProvider::name() const {
     return "Open-Meteo";
 }

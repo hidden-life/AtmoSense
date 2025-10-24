@@ -99,4 +99,19 @@ void ApplicationContext::init() {
         rebuildGeocoder();
         emit providersChanged();
     });
+
+    connect(m_settings.get(), &SettingsManager::apiKeyChanged, this, [this] {
+        Logger::info("ApplicationContext: API keys changed => rebuilding provider list.");
+
+        m_weatherProviders = WeatherProviderFactory::createAll(*m_networkClient, *m_settings);
+
+        if (!m_currentWeatherProvider || m_weatherProviders.find(m_currentWeatherProvider->id()) == m_weatherProviders.end()) {
+            rebuildWeatherProvider();
+            if (m_weatherRepository && m_currentWeatherProvider) {
+                m_weatherRepository->setProvider(m_currentWeatherProvider);
+            }
+        }
+
+        emit providersChanged();
+    });
 }

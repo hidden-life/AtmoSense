@@ -24,6 +24,7 @@ private:
     ApplicationContext *m_ctx = nullptr;
 
     void populateProviders();
+    void updateAPIKeyVisibility();
 
 private slots:
     void onSaveButtonClicked();
