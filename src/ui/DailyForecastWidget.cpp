@@ -45,7 +45,8 @@ void DailyForecastWidget::update(const std::vector<Weather> &daily) {
 
         const UnitSystem unitSystem = m_ctx->settings()->unitSystem();
 
-        auto *dateLabel = new QLabel(d.timestamp.toLocalTime().toString("ddd, dd MMM"));
+        const QLocale locale;
+        auto *dateLabel = new QLabel(locale.toString(d.timestamp.toLocalTime(), "ddd, dd MMM"));
         auto *temperatureLabel = new QLabel(UnitFormatter::temperature(d.temperature, unitSystem));
 
         h->addWidget(iconLabel);

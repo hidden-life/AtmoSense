@@ -53,7 +53,8 @@ void HourlyForecastWidget::update(const std::vector<Weather> &hourly) {
 
         const UnitSystem unitSystem = m_ctx->settings()->unitSystem();
 
-        auto *timeLabel = new QLabel(h.timestamp.toLocalTime().toString("HH:mm"));
+        const QLocale locale;
+        auto *timeLabel = new QLabel(locale.toString(h.timestamp.toLocalTime().time(), QLocale::ShortFormat));
         auto *temperatureLabel = new QLabel(UnitFormatter::temperature(h.temperature, unitSystem));
         timeLabel->setAlignment(Qt::AlignCenter);
         temperatureLabel->setAlignment(Qt::AlignCenter);

@@ -9,6 +9,7 @@
 #include "interfaces/IGeocoder.h"
 #include "interfaces/IWeatherProvider.h"
 #include "model/Provider.h"
+#include "model/Locale.h"
 
 SettingsDialog::SettingsDialog(ApplicationContext *ctx, QWidget *parent) :
     QDialog(parent), ui(new Ui::SettingsDialog), m_ctx(ctx) {
@@ -89,10 +90,6 @@ SettingsDialog::SettingsDialog(ApplicationContext *ctx, QWidget *parent) :
         }
         ui->themeComboBox->setCurrentIndex(idx);
     }
-
-    // // set current theme from settings
-    // const Theme currentTheme = m_settings->theme();
-    // ui->themeComboBox->setCurrentText(ThemeUtils::toDisplayName(currentTheme));
 
     ui->providerComboBox->setCurrentText(settings->provider());
     ui->refreshIntervalSpinBox->setValue(settings->refreshInterval());
@@ -201,11 +198,12 @@ void SettingsDialog::updateAPIKeyVisibility() {
 void SettingsDialog::onSaveButtonClicked() {
     const auto settings = m_ctx->settings();
 
-    // language block
+    // language & locale block
     {
         const QString code = ui->languageComboBox->currentData().toString();
         const auto lang = LanguageUtils::fromCode(code);
         settings->setLanguage(lang);
+        settings->setLocale(toLocale(code));
     }
 
     // theme block

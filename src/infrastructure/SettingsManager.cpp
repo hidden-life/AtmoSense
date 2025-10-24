@@ -266,6 +266,17 @@ void SettingsManager::setOpenWeatherMapAPIKey(const QString &key) {
     emit settingsChanged();
 }
 
+Locale SettingsManager::locale() const {
+    return toLocale(m_settings.value("ui/locale", "system").toString());
+}
+
+void SettingsManager::setLocale(const Locale locale) {
+    m_settings.setValue("ui/locale", toString(locale));
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
 Theme SettingsManager::theme() const {
     const QString t = m_settings.value("ui/theme", static_cast<int>(Theme::System)).toString();
     return ThemeUtils::fromString(t);

@@ -8,6 +8,7 @@
 #include "model/Theme.h"
 #include "model/Provider.h"
 #include "model/UnitSystem.h"
+#include "model/Locale.h"
 
 class SettingsManager final : public QObject {
     Q_OBJECT
@@ -102,6 +103,11 @@ public:
     [[nodiscard]]
     QString openWeatherMapAPIKey() const;
     void setOpenWeatherMapAPIKey(const QString &key);
+
+    // application global locale, not language!
+    [[nodiscard]]
+    Locale locale() const;
+    void setLocale(Locale locale);
 
 signals:
     void settingsChanged();

@@ -69,6 +69,13 @@ void ApplicationContext::init() {
     m_settings = std::make_shared<SettingsManager>();
     m_cache = std::make_shared<FileCacheStore>(cacheDir());
 
+    // set application locale
+    switch (m_settings->locale()) {
+        case Locale::English: QLocale::setDefault(QLocale(QLocale::English)); break;
+        case Locale::Ukrainian: QLocale::setDefault(QLocale(QLocale::Ukrainian)); break;
+        default: QLocale::setDefault(QLocale(QLocale::system())); break;
+    }
+
     // create providers using factories
     m_weatherProviders = WeatherProviderFactory::createAll(*m_networkClient, *m_settings);
     m_geocoderProviders = GeocoderFactory::createAll(*m_networkClient);
@@ -113,5 +120,13 @@ void ApplicationContext::init() {
         }
 
         emit providersChanged();
+    });
+
+    connect(translation().get(), &TranslationManager::languageChanged, this, [this]() {
+        switch (m_settings->locale()) {
+            case Locale::English: QLocale::setDefault(QLocale(QLocale::English)); break;
+            case Locale::Ukrainian: QLocale::setDefault(QLocale(QLocale::Ukrainian)); break;
+            default: QLocale::setDefault(QLocale(QLocale::system())); break;
+        }
     });
 }
