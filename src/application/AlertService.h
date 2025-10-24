@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "model/Forecast.h"
+#include "notifications/NotificationSoundPlayer.h"
 
 class SettingsManager;
 class TrayService;
@@ -17,6 +18,7 @@ public:
 private:
     SettingsManager *m_settings;
     TrayService *m_tray;
+    NotificationSoundPlayer *m_soundPlayer;
 
     std::optional<QDateTime> m_lastRain;
     std::optional<QDateTime> m_lastFreeze;
@@ -26,7 +28,7 @@ private:
     void maybeRain(const Forecast &forecast);
     void maybeFreeze(const Forecast &forecast);
     void maybeWind(const Forecast &forecast);
-
+    [[nodiscard]]
     bool shouldThrottle(const std::optional<QDateTime> &lastAlert, int minutes) const;
 
     static bool willRainSoon(const Forecast &forecast);

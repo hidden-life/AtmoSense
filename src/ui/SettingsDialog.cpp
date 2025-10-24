@@ -116,6 +116,13 @@ SettingsDialog::SettingsDialog(ApplicationContext *ctx, QWidget *parent) :
     ui->hourlyDisplaySpinBox->setValue(settings->hourlyDisplayHours());
     ui->refreshIntervalSpinBox->setValue(settings->refreshInterval());
 
+    // notifications
+    ui->rainCheckBox->setChecked(settings->notification(NotificationType::Rain));
+    ui->windCheckBox->setChecked(settings->notification(NotificationType::Wind));
+    ui->freezeCheckBox->setChecked(settings->notification(NotificationType::Freeze));
+
+    ui->notificationSoundCheckBox->setChecked(settings->notificationSoundEnabled());
+
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsDialog::onSaveButtonClicked);
     connect(ui->cancelButton, &QPushButton::clicked, this, &SettingsDialog::onCancelButtonClicked);
 }
@@ -244,6 +251,11 @@ void SettingsDialog::onSaveButtonClicked() {
     if (const QString selectedProvider = ui->providerComboBox->currentText(); selectedProvider.contains("OpenWeatherMap", Qt::CaseInsensitive)) {
         m_ctx->settings()->setOpenWeatherMapAPIKey(ui->apiKeyLineEdit->text());
     }
+
+    // notifications
+    settings->setNotification(NotificationType::Rain, ui->rainCheckBox->isChecked());
+    settings->setNotification(NotificationType::Wind, ui->windCheckBox->isChecked());
+    settings->setNotification(NotificationType::Freeze, ui->freezeCheckBox->isChecked());
 
     accept();
 }

@@ -6,7 +6,11 @@
 #include "UnitFormatter.h"
 #include "model/UnitSystem.h"
 
-AlertService::AlertService(SettingsManager *settings, TrayService *tray, QObject *parent) : QObject(parent), m_settings(settings), m_tray(tray) {}
+AlertService::AlertService(SettingsManager *settings, TrayService *tray, QObject *parent) :
+    QObject(parent),
+    m_settings(settings),
+    m_tray(tray),
+    m_soundPlayer(new NotificationSoundPlayer(this)) {}
 
 void AlertService::process(const Forecast &forecast) {
     if (!m_settings || !m_tray) {
@@ -78,6 +82,8 @@ QString AlertService::describeCurrentWind(const Forecast &forecast) {
 
 // concrete alerts
 void AlertService::maybeRain(const Forecast &forecast) {
+    if (!m_settings->notification(NotificationType::Rain)) return;
+
     // if there is no rain - skip
     if (!willRainSoon(forecast)) return;
 
@@ -90,10 +96,16 @@ void AlertService::maybeRain(const Forecast &forecast) {
 
     m_tray->showInfo(title, body);
 
+    if (m_settings->notificationSoundEnabled()) {
+        m_soundPlayer->play(NotificationType::Rain);
+    }
+
     m_lastRain = QDateTime::currentDateTimeUtc();
 }
 
 void AlertService::maybeFreeze(const Forecast &forecast) {
+    if (!m_settings->notification(NotificationType::Freeze)) return;
+
     if (!isFreezingNow(forecast)) return;
 
     if (shouldThrottle(m_lastFreeze, 120)) return;
@@ -104,10 +116,16 @@ void AlertService::maybeFreeze(const Forecast &forecast) {
     Logger::info("AlertService: freeze alert => tray");
     m_tray->showInfo(title, body);
 
+    if (m_settings->notificationSoundEnabled()) {
+        m_soundPlayer->play(NotificationType::Freeze);
+    }
+
     m_lastFreeze = QDateTime::currentDateTimeUtc();
 }
 
 void AlertService::maybeWind(const Forecast &forecast) {
+    if (!m_settings->notification(NotificationType::Wind)) return;
+
     if (!isWindyNow(forecast)) return;
 
     if (shouldThrottle(m_lastWind, 120)) return;
@@ -117,6 +135,10 @@ void AlertService::maybeWind(const Forecast &forecast) {
 
     Logger::info("AlertService: wind alert => tray");
     m_tray->showInfo(title, body);
+
+    if (m_settings->notificationSoundEnabled()) {
+        m_soundPlayer->play(NotificationType::Wind);
+    }
 
     m_lastWind = QDateTime::currentDateTimeUtc();
 }

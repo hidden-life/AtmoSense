@@ -9,6 +9,7 @@
 #include "model/Provider.h"
 #include "model/UnitSystem.h"
 #include "model/Locale.h"
+#include "model/Notification.h"
 
 class SettingsManager final : public QObject {
     Q_OBJECT
@@ -109,6 +110,14 @@ public:
     Locale locale() const;
     void setLocale(Locale locale);
 
+    // notifications
+    [[nodiscard]]
+    bool notification(NotificationType type) const;
+    void setNotification(NotificationType type, bool isEnabled);
+
+    bool notificationSoundEnabled() const;
+    void setNotificationSoundEnabled(bool isEnabled);
+
 signals:
     void settingsChanged();
     void hourlyDisplayHoursChanged();
@@ -119,6 +128,9 @@ signals:
 
     // api key
     void apiKeyChanged();
+
+    // notifications
+    void notificationsChanged();
 
 private:
     bool m_showClosePrompt = true;

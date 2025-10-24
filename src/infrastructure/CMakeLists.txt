@@ -6,6 +6,8 @@ set(SOURCES
         ThemeManager.cpp
         TranslationManager.cpp
         UnitFormatter.cpp
+
+        notifications/NotificationSoundPlayer.cpp
 )
 
 set(HEADERS
@@ -16,6 +18,8 @@ set(HEADERS
         ThemeManager.h
         TranslationManager.h
         UnitFormatter.h
+
+        notifications/NotificationSoundPlayer.h
 )
 
 add_library(infrastructure ${SOURCES} ${HEADERS})
@@ -26,10 +30,12 @@ target_link_libraries(infrastructure PRIVATE
         Qt${QT_VERSION_MAJOR}::Widgets
         Qt${QT_VERSION_MAJOR}::Core
         Qt${QT_VERSION_MAJOR}::Network
+        Qt${QT_VERSION_MAJOR}::Multimedia
 )
 target_include_directories(infrastructure PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/open_meteo
+        ${CMAKE_CURRENT_SOURCE_DIR}/open_weather_map
 )
 
 target_sources(infrastructure PRIVATE

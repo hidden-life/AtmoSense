@@ -6,14 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>375</width>
-    <height>478</height>
+    <width>380</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Settings</string>
   </property>
   <layout class="QVBoxLayout" name="mainVLayout">
+
+   <!-- 🧱 GENERAL -->
    <item>
     <widget class="QGroupBox" name="generalGroupBox">
      <property name="title">
@@ -43,19 +45,14 @@
      </layout>
     </widget>
    </item>
+
+   <!-- ☁️ DATA -->
    <item>
     <widget class="QGroupBox" name="dataGroupBox">
      <property name="title">
       <string>Data</string>
      </property>
      <layout class="QGridLayout" name="dataGrid">
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="fetchAirQualityCheckBox">
-        <property name="text">
-         <string>Fetch Air Quality (AQI)</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="providerLabel">
         <property name="text">
@@ -63,12 +60,18 @@
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="fetchPrecipProbCheckBox">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="providerComboBox"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="apiKeyLabel">
         <property name="text">
-         <string>Fetch precipitation probability</string>
+         <string>API key</string>
         </property>
        </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="apiKeyLineEdit"/>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="geocoderLabel">
@@ -80,8 +83,12 @@
       <item row="2" column="1">
        <widget class="QComboBox" name="geocoderComboBox"/>
       </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="providerComboBox"/>
+      <item row="3" column="0">
+       <widget class="QCheckBox" name="fetchAirQualityCheckBox">
+        <property name="text">
+         <string>Fetch Air Quality (AQI)</string>
+        </property>
+       </widget>
       </item>
       <item row="3" column="1">
        <widget class="QCheckBox" name="fetchUvCheckBox">
@@ -90,26 +97,18 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="apiKeyLabel">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="fetchPrecipProbCheckBox">
         <property name="text">
-         <string>API key</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="apiKeyLineEdit">
-        <property name="enabled">
-         <bool>true</bool>
+         <string>Fetch precipitation probability</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
+
+   <!-- ⚙️ UNITS -->
    <item>
     <widget class="QGroupBox" name="unitsGroupBox">
      <property name="title">
@@ -129,6 +128,8 @@
      </layout>
     </widget>
    </item>
+
+   <!-- 🔁 UPDATES -->
    <item>
     <widget class="QGroupBox" name="updatesGroupBox">
      <property name="title">
@@ -178,12 +179,74 @@
      </layout>
     </widget>
    </item>
+
+   <!-- ─────────────── Divider -->
+   <item>
+    <widget class="Line" name="separatorLine">
+     <property name="frameShape">
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+    </widget>
+   </item>
+
+   <!-- 🔔 NOTIFICATIONS -->
+   <item>
+    <widget class="QGroupBox" name="notificationsGroupBox">
+     <property name="title">
+      <string>Notifications</string>
+     </property>
+     <layout class="QVBoxLayout" name="notificationsLayout">
+	 <item>
+	 <widget class="QCheckBox" name="notificationSoundCheckBox">
+	  <property name="text">
+	   <string>Play sound for alerts</string>
+	  </property>
+	 </widget>
+	</item>
+      <item>
+       <widget class="QCheckBox" name="rainCheckBox">
+        <property name="text">
+         <string>Rain alerts</string>
+        </property>
+        <property name="toolTip">
+         <string>Show notification if rain is expected soon</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="freezeCheckBox">
+        <property name="text">
+         <string>Freezing alerts</string>
+        </property>
+        <property name="toolTip">
+         <string>Show notification when temperature is below freezing</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="windCheckBox">
+        <property name="text">
+         <string>Strong wind alerts</string>
+        </property>
+        <property name="toolTip">
+         <string>Show notification during strong wind</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+
+   <!-- 🔘 BUTTONS -->
    <item>
     <layout class="QHBoxLayout" name="buttonsHLayout">
      <item>
-      <spacer name="hsp">
+      <spacer name="hspacer">
        <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -209,6 +272,7 @@
      </item>
     </layout>
    </item>
+
   </layout>
  </widget>
  <resources/>

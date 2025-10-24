@@ -277,6 +277,28 @@ void SettingsManager::setLocale(const Locale locale) {
     emit settingsChanged();
 }
 
+bool SettingsManager::notification(const NotificationType type) const {
+    return m_settings.value(QString("notifications/%1").arg(toString(type)), true).toBool();
+}
+
+void SettingsManager::setNotification(const NotificationType type, const bool isEnabled) {
+    m_settings.setValue(QString("notifications/%1").arg(toString(type)), isEnabled);
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
+bool SettingsManager::notificationSoundEnabled() const {
+    return m_settings.value("notifications/play_sound", true).toBool();
+}
+
+void SettingsManager::setNotificationSoundEnabled(bool isEnabled) {
+    m_settings.setValue("notifications/play_sound", isEnabled);
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
 Theme SettingsManager::theme() const {
     const QString t = m_settings.value("ui/theme", static_cast<int>(Theme::System)).toString();
     return ThemeUtils::fromString(t);
