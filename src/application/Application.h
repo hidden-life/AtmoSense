@@ -4,6 +4,8 @@
 #include <QApplication>
 #include <memory>
 
+#include "AlertService.h"
+
 class MainWindow;
 class ApplicationContext;
 class TrayService;
@@ -14,6 +16,7 @@ class Application : public QObject {
     std::unique_ptr<ApplicationContext> m_ctx;
     std::unique_ptr<MainWindow> m_mainWindow;
     std::unique_ptr<TrayService> m_trayService;
+    std::unique_ptr<AlertService> m_alertService;
 
 public slots:
     void showSettings();

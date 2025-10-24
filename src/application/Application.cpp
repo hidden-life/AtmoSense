@@ -26,6 +26,7 @@ Application::Application(int &argc, char **argv) : m_app(argc, argv) {
     m_mainWindow = std::make_unique<MainWindow>(m_ctx.get());
     m_mainWindow->restoreLastLocation();
     m_trayService = std::make_unique<TrayService>(m_ctx.get());
+    m_alertService = std::make_unique<AlertService>(m_ctx->settings().get(), m_trayService.get());
 }
 
 Application::~Application() = default;
@@ -138,6 +139,11 @@ void Application::fetchWeather() {
             const bool isDark = m_ctx->themeManager()->isDarkTheme();
             const auto icon = IconMapper::map(forecast.weather.weatherCode, isDark);
             m_trayService->setIcon(icon);
+        }
+
+        // clever alerts
+        if (m_alertService) {
+            m_alertService->process(forecast);
         }
     } catch (const std::exception &e) {
         Logger::error("Failed to fetch weather: " + QString::fromStdString(e.what()));
