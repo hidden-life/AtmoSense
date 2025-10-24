@@ -48,3 +48,16 @@ QJsonDocument NetworkClient::getJson(const QUrl &url, const int timeout) {
 
     return doc;
 }
+
+bool NetworkClient::hasInternet() {
+    QNetworkRequest req(QUrl("https://client3.google.com/generate_204"));
+    QNetworkReply *reply = m_manager.get(req);
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    const bool isOk = (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 204);
+    reply->deleteLater();
+    
+    return isOk;
+}

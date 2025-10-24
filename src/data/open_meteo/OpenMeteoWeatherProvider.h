@@ -14,6 +14,8 @@ public:
 
     QString id() const override;
     QString name() const override;
+
+    NetworkClient &client() override { return m_client; }
 };
 
 #endif //DATA_OPEN_METEO_OPEN_METEO_WEATHER_PROVIDER_H

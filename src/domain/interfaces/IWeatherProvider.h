@@ -11,6 +11,7 @@ public:
     virtual QString name() const = 0;
     virtual Forecast fetch(double lat, double lon, const QString &tz) = 0;
     virtual bool apiKeyRequired() { return false; }
+    virtual NetworkClient &client() = 0;
 };
 
 #endif //DOMAIN_INTERFACES_IWEATHER_PROVIDER_H

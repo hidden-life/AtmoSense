@@ -15,6 +15,7 @@ public:
     QString name() const override { return "OpenWeatherMap"; };
     Forecast fetch(double lat, double lon, const QString &tz) override;
     bool apiKeyRequired() override;
+    NetworkClient &client() override { return m_client; }
 
 private:
     NetworkClient &m_client;

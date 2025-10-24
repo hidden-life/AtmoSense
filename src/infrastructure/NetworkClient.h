@@ -9,6 +9,8 @@ class NetworkClient {
 public:
     NetworkClient();
     QJsonDocument getJson(const QUrl &url, int timeout = 10000);
+
+    bool hasInternet();
 };
 
 #endif //INFRASTRUCTURE_NETWORK_CLIENT_H
