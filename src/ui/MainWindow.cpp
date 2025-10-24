@@ -11,6 +11,7 @@
 #include "LocationSearchDialog.h"
 #include "Logger.h"
 #include "SettingsManager.h"
+#include "repository/IWeatherRepository.h"
 
 MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
     QMainWindow(parent), ui(new Ui::MainWindow), m_ctx(ctx) {
@@ -69,6 +70,7 @@ void MainWindow::retranslate() {
 
 void MainWindow::updateWeather(const Forecast &forecast) {
     Logger::info("MainWindow: updating weather UI.");
+    setStatus(DataStatus::Loading, tr("Updating forecast..."));
     m_lastForecast = forecast;
 
     if (!m_ctx) {
@@ -76,23 +78,37 @@ void MainWindow::updateWeather(const Forecast &forecast) {
         return;
     }
 
-    // update summary widget info
-    ui->weatherSummaryWidget->update(forecast.weather);
+    try {
+        // update summary widget info
+        ui->weatherSummaryWidget->update(forecast.weather);
 
-    // update hourly weather data
-    if (!forecast.hourly.empty()) {
-        ui->hourlyForecastWidget->update(forecast.hourly);
+        // update hourly weather data
+        if (!forecast.hourly.empty()) {
+            ui->hourlyForecastWidget->update(forecast.hourly);
+        }
+
+        // update daily weather data if exists
+        if (!forecast.daily.empty()) {
+            ui->dailyForecastWidget->update(forecast.daily);
+        }
+
+        if (!m_ctx->weatherRepository()->lastUsedCache()) {
+            // from cache
+            const QString time = m_ctx->weatherRepository()->lastUpdated().isValid() ?
+                m_ctx->weatherRepository()->lastUpdated().toLocalTime().toString("HH:mm") :
+                tr("Unknown");
+            setStatus(DataStatus::Cached, tr("Loaded from cache at: %1").arg(time));
+        } else {
+            setStatus(DataStatus::Online, tr("Updated at: %1").arg(QTime::currentTime().toString("HH:mm")));
+        }
+    } catch (const std::exception &e) {
+        QString msg = QString::fromStdString(e.what());
+        if (msg.contains("internet", Qt::CaseInsensitive)) {
+            setStatus(DataStatus::Offline, tr("No internet connection."));
+        } else {
+            setStatus(DataStatus::Error, msg);
+        }
     }
-
-    // update daily weather data if exists
-    if (!forecast.daily.empty()) {
-        ui->dailyForecastWidget->update(forecast.daily);
-    }
-
-    // date and time format
-    const QString shortDateTimeFormat = QLocale::system().dateTimeFormat(QLocale::ShortFormat);
-    const QString dt = QDateTime::currentDateTime().toString(shortDateTimeFormat);
-    statusBar()->showMessage(tr("Updated at: %1").arg(dt), 3000);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
@@ -152,6 +168,23 @@ void MainWindow::rebuildRecents() {
         ui->recentButton->setMenu(menu);
         ui->recentButton->setPopupMode(QToolButton::InstantPopup);
     }
+}
+
+void MainWindow::setStatus(DataStatus status, const QString &txt) {
+    const QString color = toColor(status);
+    const QString text = toEmoji(status) + (txt.isEmpty() ? "" : " • " + txt);
+
+    ui->statusLabel->setText(text);
+    ui->statusLabel->setStyleSheet(QString("color: %1; font-weight: 500; font-size: 13px;").arg(color));
+
+    // animation
+    auto *effect = new QGraphicsOpacityEffect(this);
+    ui->statusLabel->setGraphicsEffect(effect);
+    auto *animation = new QPropertyAnimation(effect, "opacity", this);
+    animation->setDuration(300);
+    animation->setStartValue(0.0);
+    animation->setEndValue(1.0);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void MainWindow::restoreLastLocation() {

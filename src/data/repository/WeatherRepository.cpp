@@ -68,6 +68,7 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
     const int ttl = 24 * 3600;
 
     if (const auto cached = m_cacheStore.get(key)) {
+        m_lastFromCache = true;
         if (const QJsonDocument doc = QJsonDocument::fromJson(*cached); doc.isObject()) {
             const auto root = doc.object();
             const CacheMetadata cacheMetadata = parseCacheMetadata(root);
@@ -116,6 +117,7 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
                 if (root.contains("aq") && root.value("aq").isObject()) {
                     forecast.currentAirQuality = parseAirQuality(root.value("aq").toObject());
                 }
+                m_lastFromCache = true;
 
                 return forecast;
             }
@@ -150,14 +152,16 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
                     if (root.contains("aq") && root.value("aq").isObject()) {
                         f.currentAirQuality = parseAirQuality(root.value("aq").toObject());
                     }
+                    m_lastFromCache = true;
 
                     return f;
                 }
             }
 
-            throw std::runtime_error("There are no internet connection and cached data available.");
+            throw std::runtime_error("No internet connection and no cached data available.");
         }
 
+        m_lastFromCache = false;
         forecast = m_provider->fetch(lat, lon, tz);
         lastRequest = QDateTime::currentDateTimeUtc();
     } catch (std::exception &e) {
@@ -175,9 +179,12 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
             for (const auto &val : root.value("daily").toArray()) {
                 f.daily.push_back(parse(val.toObject()));
             }
+            m_lastFromCache = true;
 
             return f;
         }
+
+        m_lastFromCache = false;
         throw; // if there is no cache, throw!
     }
 
@@ -201,6 +208,7 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
         obj["aq"] = serializeAirQuality(*forecast.currentAirQuality);
     }
 
+    m_lastUpdated = QDateTime::currentDateTimeUtc();
     appendCacheMetadata(obj, ttl);
     const QJsonDocument out(obj);
     const QByteArray serialized = out.toJson(QJsonDocument::Compact);

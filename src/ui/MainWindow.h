@@ -2,9 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
 
 #include "model/Forecast.h"
 #include "ApplicationContext.h"
+#include "model/DataStatus.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -44,6 +47,7 @@ private:
     Forecast m_lastForecast;
 
     void rebuildRecents();
+    void setStatus(DataStatus status, const QString &txt);
 };
 
 #endif //MAINWINDOW_H

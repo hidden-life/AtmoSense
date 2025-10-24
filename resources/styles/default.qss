@@ -6,6 +6,14 @@ QLabel {
     color: #1d232a;
 }
 
+QLabel#statusLabel {
+    border-top: 1px solid rgba(120, 120, 120, 0.2);
+    padding: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #888;
+}
+
 QPushButton {
     background: #e1e7ef;
     border: 1px solid #b9c4cf;

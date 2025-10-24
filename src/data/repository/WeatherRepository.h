@@ -15,10 +15,17 @@ struct CacheMetadata {
 class WeatherRepository final : public IWeatherRepository {
     std::shared_ptr<IWeatherProvider> m_provider;
     ICacheStore &m_cacheStore;
+    bool m_lastFromCache = false;
+    QDateTime m_lastUpdated;
+
 public:
     WeatherRepository(std::shared_ptr<IWeatherProvider> provider, ICacheStore &cacheStore);
     Forecast get(double lat, double lon, const QString &tz, int maxAge) override;
     void setProvider(std::shared_ptr<IWeatherProvider> provider) override;
+    [[nodiscard]]
+    bool lastUsedCache() override { return m_lastFromCache; }
+    [[nodiscard]]
+    QDateTime lastUpdated() override { return m_lastUpdated; }
 
 private:
     static bool expired(const CacheMetadata &cache);
