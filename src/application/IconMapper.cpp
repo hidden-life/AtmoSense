@@ -18,7 +18,7 @@ QIcon IconMapper::map(const int weatherCode, const bool isDarkTheme) {
     }
 }
 
-QString IconMapper::resolveIconPath(int weatherCode, bool isDarkTheme) {
+QString IconMapper::resolveIconPath(const int weatherCode, const bool isDarkTheme) {
     // @todo Add here mapping according to input `isDarkTheme` (light or dark subfolder into `icons`)
 
     const QString weatherIconsPath = QString(":/icons/weather/%1/").arg(isDarkTheme ? "night" : "day");

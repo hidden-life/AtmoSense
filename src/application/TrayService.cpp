@@ -1,6 +1,8 @@
 #include <QAction>
 
 #include "TrayService.h"
+
+#include "Logger.h"
 #include "MainWindow.h"
 #include "SettingsDialog.h"
 
@@ -26,6 +28,11 @@ TrayService::TrayService(ApplicationContext *ctx, QObject *parent) : QObject(par
 
     m_tray.setToolTip(tr("AtmoSense: fast weather info"));
     m_tray.setContextMenu(&m_menu);
+    const QIcon defaultIcon(":/icons/weather/day/clear.png"); // default icon, may be need to change in future
+    if (defaultIcon.isNull()) {
+        Logger::warning("Default icon not found!");
+    }
+    m_tray.setIcon(defaultIcon);
     m_tray.show();
 }
 
@@ -44,5 +51,6 @@ void TrayService::retranslate() {
     m_settingsAction->setText(tr("Settings"));
 
     m_tray.setToolTip(tr("AtmoSense: fast weather info"));
+    m_tray.setVisible(true);
 }
 
