@@ -3,8 +3,10 @@
 
 #include <QString>
 #include <memory>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
+
+namespace spdlog {
+    class logger;
+}
 
 class Logger {
 public:

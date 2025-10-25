@@ -16,6 +16,7 @@ class WeatherRepository final : public IWeatherRepository {
     std::shared_ptr<IWeatherProvider> m_provider;
     ICacheStore &m_cacheStore;
     bool m_lastFromCache = false;
+    bool m_lastHasValidCache = false;
     QDateTime m_lastUpdated;
 
 public:
@@ -24,6 +25,8 @@ public:
     void setProvider(std::shared_ptr<IWeatherProvider> provider) override;
     [[nodiscard]]
     bool lastUsedCache() override { return m_lastFromCache; }
+    [[nodiscard]]
+    bool hasValidCache() override { return m_lastHasValidCache; }
     [[nodiscard]]
     QDateTime lastUpdated() override { return m_lastUpdated; }
 

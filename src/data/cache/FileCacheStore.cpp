@@ -23,8 +23,9 @@ QString FileCacheStore::pathFor(const QString &key) const {
 
 void FileCacheStore::put(const QString &key, const QByteArray &value, int ttl) {
     QMutexLocker mtxLocker(&m_mutex);
-    if (QFile file(pathFor(key)); file.open(QIODevice::WriteOnly)) {
-        qint64 expiry = QDateTime::currentSecsSinceEpoch() + ttl;
+
+    if (QFile file(pathFor(key)); file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        const qint64 expiry = QDateTime::currentSecsSinceEpoch() + ttl;
         file.write(reinterpret_cast<const char*>(&expiry), sizeof(expiry));
         file.write(value);
         file.close();
@@ -35,6 +36,7 @@ void FileCacheStore::put(const QString &key, const QByteArray &value, int ttl) {
 std::optional<QByteArray> FileCacheStore::get(const QString &key) {
     QMutexLocker mtxLocker(&m_mutex);
     QFile file(pathFor(key));
+    Logger::debug("Cache path: " + pathFor(key));
     if (!file.open(QIODevice::ReadOnly)) {
         return std::nullopt;
     }

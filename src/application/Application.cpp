@@ -25,6 +25,7 @@ Application::Application(int &argc, char **argv) : m_app(argc, argv) {
     m_ctx->init();
 
     Logger::init();
+    Logger::setLevel(0);
 
     m_mainWindow = std::make_unique<MainWindow>(m_ctx.get());
     m_mainWindow->restoreLastLocation();

@@ -10,6 +10,7 @@ public:
     virtual Forecast get(double lat, double lon, const QString &tz, int maxAge = 10) = 0;
     virtual void setProvider(std::shared_ptr<IWeatherProvider> provider) = 0;
     virtual bool lastUsedCache() = 0;
+    virtual bool hasValidCache() = 0;
     virtual QDateTime lastUpdated() = 0;
 };
 

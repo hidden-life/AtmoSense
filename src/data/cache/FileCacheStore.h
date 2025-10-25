@@ -5,7 +5,7 @@
 #include <QMutex>
 #include "interfaces/ICacheStore.h"
 
-class FileCacheStore : public ICacheStore {
+class FileCacheStore final : public ICacheStore {
     QDir m_dir;
 public:
     explicit FileCacheStore(const QDir &baseDir);

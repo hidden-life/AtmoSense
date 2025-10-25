@@ -61,151 +61,149 @@ static Weather parse(const QJsonObject &obj) {
 }
 
 WeatherRepository::WeatherRepository(std::shared_ptr<IWeatherProvider> provider, ICacheStore &cacheStore) :
-    m_provider(std::move(provider)), m_cacheStore(cacheStore) {}
+    m_provider(std::move(provider)), m_cacheStore(cacheStore), m_lastHasValidCache(false) {}
 
 Forecast WeatherRepository::get(const double lat, const double lon, const QString &tz, const int maxAge) {
     const QString key = cacheKey(lat, lon, tz);
     const int ttl = 24 * 3600;
 
+    m_lastFromCache = true;
+    m_lastHasValidCache = true;
+
     if (const auto cached = m_cacheStore.get(key)) {
+        Logger::debug("Cache file found for key <" + key + "> with size = " + QString::number(cached->size()));
         m_lastFromCache = true;
         if (const QJsonDocument doc = QJsonDocument::fromJson(*cached); doc.isObject()) {
             const auto root = doc.object();
             const CacheMetadata cacheMetadata = parseCacheMetadata(root);
             const bool isExpired = expired(cacheMetadata);
 
-            Forecast forecast;
-            forecast.weather = parse(root.value("now").toObject());
+            Forecast cachedForecast;
+            cachedForecast.weather = parse(root.value("now").toObject());
+            QSet<QDateTime> seen;
             for (const auto &val : root.value("hourly").toArray()) {
-                forecast.hourly.push_back(parse(val.toObject()));
+                if (Weather w = parse(val.toObject()); !seen.contains(w.timestamp)) {
+                    cachedForecast.hourly.push_back(w);
+                    seen.insert(w.timestamp);
+                }
             }
+            Logger::debug(QString("Parsed %1 hourly entries from cache").arg(cachedForecast.hourly.size()));
 
             for (const auto &val : root.value("daily").toArray()) {
-                forecast.daily.push_back(parse(val.toObject()));
+                cachedForecast.daily.push_back(parse(val.toObject()));
             }
 
             if (root.contains("aq") && root.value("aq").isObject()) {
-                forecast.currentAirQuality = parseAirQuality(root.value("aq").toObject());
+                cachedForecast.currentAirQuality = parseAirQuality(root.value("aq").toObject());
             }
 
             if (!isExpired) {
                 Logger::info("WeatherRepository: using cache forecast for <" + key + ">");
-                return forecast;
+                m_lastHasValidCache = true;
+                m_lastHasValidCache = true;
+
+                return cachedForecast;
             }
 
             Logger::warning("WeatherRepository: cache expired for <" + key + ">");
-        }
-    }
 
-    // request freq
-    static QDateTime lastRequest;
-    if (const int minInterval = maxAge * 60; lastRequest.isValid() && lastRequest.secsTo(QDateTime::currentDateTimeUtc()) < minInterval) {
-        Logger::warning("WeatherRepository: skipping API call (rate limit).");
-        if (const auto cached = m_cacheStore.get(key)) {
-            if (const QJsonDocument doc = QJsonDocument::fromJson(*cached); doc.isObject()) {
-                const auto root = doc.object();
-                Forecast forecast;
-                forecast.weather = parse(root.value("now").toObject());
-                for (const auto &val : root.value("hourly").toArray()) {
-                    forecast.hourly.push_back(parse(val.toObject()));
-                }
-
-                for (const auto &val : root.value("daily").toArray()) {
-                    forecast.daily.push_back(parse(val.toObject()));
-                }
-
-                if (root.contains("aq") && root.value("aq").isObject()) {
-                    forecast.currentAirQuality = parseAirQuality(root.value("aq").toObject());
-                }
+            Forecast expiredCachedForecast = cachedForecast;
+            // rate limiting guard
+            static QDateTime lastRequest;
+            const int minInterval = maxAge * 60;
+            if (lastRequest.isValid() && lastRequest.secsTo(QDateTime::currentDateTimeUtc()) < minInterval) {
+                Logger::warning("WeatherRepository: skipping API call (rate limit). Returning expired cache.");
                 m_lastFromCache = true;
+                m_lastHasValidCache = false;
 
-                return forecast;
+                return expiredCachedForecast;
             }
+
+            Logger::info("Cache miss or expired, fetching fresh via provider: <" + key + ">");
+            if (!m_provider) {
+                Logger::error("Weather provider is not initialized.");
+                throw std::runtime_error("Weather provider missing.");
+            }
+
+            if (!m_provider->client().hasInternet()) {
+                Logger::warning("No internet connection. Returning expired cache.");
+                m_lastFromCache = true;
+                m_lastHasValidCache = false;
+
+                return expiredCachedForecast;
+            }
+
+            Forecast freshForecast = m_provider->fetch(lat, lon ,tz);
+            Logger::debug(QString("Fetched %1 hourly entries from provider.").arg(freshForecast.hourly.size()));
+            lastRequest = QDateTime::currentDateTimeUtc();
+
+            QJsonObject obj;
+            obj["now"] = serialize(freshForecast.weather);
+
+            QJsonArray hourlyArr;
+            for (const auto &val : freshForecast.hourly) {
+                hourlyArr.push_back(serialize(val));
+            }
+            obj["hourly"] = hourlyArr;
+
+            QJsonArray dailyArr;
+            for (const auto &val : freshForecast.daily) {
+                dailyArr.push_back(serialize(val));
+            }
+            obj["daily"] = dailyArr;
+
+            if (freshForecast.currentAirQuality.has_value()) {
+                obj["aq"] = serializeAirQuality(*freshForecast.currentAirQuality);
+            }
+
+            m_lastUpdated = QDateTime::currentDateTimeUtc();
+            appendCacheMetadata(obj, ttl);
+            const QJsonDocument out(obj);
+            const QByteArray serialized = out.toJson(QJsonDocument::Compact);
+            m_cacheStore.put(key, serialized, ttl);
+
+            Logger::info("WeatherRepository: cached new forecast (" + QString::number(serialized.size()) + ")");
+
+            m_lastFromCache = false;
+            m_lastHasValidCache = false;
+
+            return freshForecast;
         }
     }
 
-    // if there is no cache, make call using network
-    Logger::info("Cache miss for forecast, fetching using API: <" + key + ">.");
-    Forecast forecast;
-    try {
-        if (!m_provider) {
-            Logger::error("Weather provider is not initialized.");
-            throw std::runtime_error("Weather provider missing.");
-        }
+    Logger::info("No cache found for key <" + key + ">. Fetching fresh data.");
 
-        if (!m_provider->client().hasInternet()) {
-            Logger::warning("No internet connection. Loading from cache.");
-            if (const auto cached = m_cacheStore.get(key)) {
-                Logger::info("Using cached forecast due to no internet.");
-                const QJsonDocument doc = QJsonDocument::fromJson(*cached);
-                if (doc.isObject()) {
-                    const auto root = doc.object();
-                    Forecast f;
-                    f.weather = parse(root.value("now").toObject());
-                    for (const auto &val : root.value("hourly").toArray()) {
-                        f.hourly.push_back(parse(val.toObject()));
-                    }
-                    for (const auto &val : root.value("daily").toArray()) {
-                        f.daily.push_back(parse(val.toObject()));
-                    }
-
-                    if (root.contains("aq") && root.value("aq").isObject()) {
-                        f.currentAirQuality = parseAirQuality(root.value("aq").toObject());
-                    }
-                    m_lastFromCache = true;
-
-                    return f;
-                }
-            }
-
-            throw std::runtime_error("No internet connection and no cached data available.");
-        }
-
-        m_lastFromCache = false;
-        forecast = m_provider->fetch(lat, lon, tz);
-        lastRequest = QDateTime::currentDateTimeUtc();
-    } catch (std::exception &e) {
-        Logger::error("Weather provider fetch failed: " + QString::fromStdString(e.what()));
-        // fallback and return old cache data
-        if (const auto cached = m_cacheStore.get(key)) {
-            Logger::warning("Returning stale cache due to provider failure.");
-            const QJsonDocument doc = QJsonDocument::fromJson(*cached);
-            const auto root = doc.object();
-            Forecast f;
-            f.weather = parse(root.value("now").toObject());
-            for (const auto &val : root.value("hourly").toArray()) {
-                f.hourly.push_back(parse(val.toObject()));
-            }
-            for (const auto &val : root.value("daily").toArray()) {
-                f.daily.push_back(parse(val.toObject()));
-            }
-            m_lastFromCache = true;
-
-            return f;
-        }
-
-        m_lastFromCache = false;
-        throw; // if there is no cache, throw!
+    if (!m_provider) {
+        Logger::error("Weather provider is not initialized.");
+        throw std::runtime_error("Weather provider missing.");
     }
 
-    // save new answer into the cache
+    if (!m_provider->client().hasInternet()) {
+        Logger::warning("No internet connection. Returning expired cache.");
+        throw std::runtime_error("No internet connection and no cached data available.");
+    }
+
+    Forecast freshForecast = m_provider->fetch(lat, lon ,tz);
+    Logger::debug(QString("Fetched %1 hourly entries from provider.").arg(freshForecast.hourly.size()));
+
+    // save to cache
     QJsonObject obj;
-    obj["now"] = serialize(forecast.weather);
+    obj["now"] = serialize(freshForecast.weather);
 
     QJsonArray hourlyArr;
-    for (const auto &val : forecast.hourly) {
+    for (const auto &val : freshForecast.hourly) {
         hourlyArr.push_back(serialize(val));
     }
     obj["hourly"] = hourlyArr;
 
     QJsonArray dailyArr;
-    for (const auto &val : forecast.daily) {
+    for (const auto &val : freshForecast.daily) {
         dailyArr.push_back(serialize(val));
     }
     obj["daily"] = dailyArr;
 
-    if (forecast.currentAirQuality.has_value()) {
-        obj["aq"] = serializeAirQuality(*forecast.currentAirQuality);
+    if (freshForecast.currentAirQuality.has_value()) {
+        obj["aq"] = serializeAirQuality(*freshForecast.currentAirQuality);
     }
 
     m_lastUpdated = QDateTime::currentDateTimeUtc();
@@ -216,7 +214,132 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
 
     Logger::info("WeatherRepository: cached new forecast (" + QString::number(serialized.size()) + ")");
 
-    return forecast;
+    m_lastFromCache = false;
+    m_lastHasValidCache = false;
+
+    return freshForecast;
+
+    // // request freq
+    // static QDateTime lastRequest;
+    // if (const int minInterval = maxAge * 60; lastRequest.isValid() && lastRequest.secsTo(QDateTime::currentDateTimeUtc()) < minInterval) {
+    //     Logger::warning("WeatherRepository: skipping API call (rate limit).");
+    //     if (const auto cached = m_cacheStore.get(key)) {
+    //         if (const QJsonDocument doc = QJsonDocument::fromJson(*cached); doc.isObject()) {
+    //             const auto root = doc.object();
+    //             Forecast forecast;
+    //             forecast.weather = parse(root.value("now").toObject());
+    //             for (const auto &val : root.value("hourly").toArray()) {
+    //                 forecast.hourly.push_back(parse(val.toObject()));
+    //             }
+    //
+    //             for (const auto &val : root.value("daily").toArray()) {
+    //                 forecast.daily.push_back(parse(val.toObject()));
+    //             }
+    //
+    //             if (root.contains("aq") && root.value("aq").isObject()) {
+    //                 forecast.currentAirQuality = parseAirQuality(root.value("aq").toObject());
+    //             }
+    //             m_lastFromCache = true;
+    //
+    //             return forecast;
+    //         }
+    //     }
+    // }
+    //
+    // // if there is no cache, make call using network
+    // Logger::info("Cache miss for forecast, fetching using API: <" + key + ">.");
+    // Forecast forecast;
+    // try {
+    //     if (!m_provider) {
+    //         Logger::error("Weather provider is not initialized.");
+    //         throw std::runtime_error("Weather provider missing.");
+    //     }
+    //
+    //     if (!m_provider->client().hasInternet()) {
+    //         Logger::warning("No internet connection. Loading from cache.");
+    //         if (const auto cached = m_cacheStore.get(key)) {
+    //             Logger::info("Using cached forecast due to no internet.");
+    //             const QJsonDocument doc = QJsonDocument::fromJson(*cached);
+    //             if (doc.isObject()) {
+    //                 const auto root = doc.object();
+    //                 Forecast f;
+    //                 f.weather = parse(root.value("now").toObject());
+    //                 for (const auto &val : root.value("hourly").toArray()) {
+    //                     f.hourly.push_back(parse(val.toObject()));
+    //                 }
+    //                 for (const auto &val : root.value("daily").toArray()) {
+    //                     f.daily.push_back(parse(val.toObject()));
+    //                 }
+    //
+    //                 if (root.contains("aq") && root.value("aq").isObject()) {
+    //                     f.currentAirQuality = parseAirQuality(root.value("aq").toObject());
+    //                 }
+    //                 m_lastFromCache = true;
+    //
+    //                 return f;
+    //             }
+    //         }
+    //
+    //         throw std::runtime_error("No internet connection and no cached data available.");
+    //     }
+    //
+    //     m_lastFromCache = false;
+    //     forecast = m_provider->fetch(lat, lon, tz);
+    //     Logger::debug(QString("Fetched %1 hourly entries from provider").arg(forecast.hourly.size()));
+    //     lastRequest = QDateTime::currentDateTimeUtc();
+    // } catch (std::exception &e) {
+    //     Logger::error("Weather provider fetch failed: " + QString::fromStdString(e.what()));
+    //     // fallback and return old cache data
+    //     if (const auto cached = m_cacheStore.get(key)) {
+    //         Logger::warning("Returning stale cache due to provider failure.");
+    //         const QJsonDocument doc = QJsonDocument::fromJson(*cached);
+    //         const auto root = doc.object();
+    //         Forecast f;
+    //         f.weather = parse(root.value("now").toObject());
+    //         for (const auto &val : root.value("hourly").toArray()) {
+    //             f.hourly.push_back(parse(val.toObject()));
+    //         }
+    //         for (const auto &val : root.value("daily").toArray()) {
+    //             f.daily.push_back(parse(val.toObject()));
+    //         }
+    //         m_lastFromCache = true;
+    //
+    //         return f;
+    //     }
+    //
+    //     m_lastFromCache = false;
+    //     throw; // if there is no cache, throw!
+    // }
+    //
+    // // save new answer into the cache
+    // QJsonObject obj;
+    // obj["now"] = serialize(forecast.weather);
+    //
+    // QJsonArray hourlyArr;
+    // for (const auto &val : forecast.hourly) {
+    //     hourlyArr.push_back(serialize(val));
+    // }
+    // obj["hourly"] = hourlyArr;
+    //
+    // QJsonArray dailyArr;
+    // for (const auto &val : forecast.daily) {
+    //     dailyArr.push_back(serialize(val));
+    // }
+    // obj["daily"] = dailyArr;
+    //
+    // if (forecast.currentAirQuality.has_value()) {
+    //     obj["aq"] = serializeAirQuality(*forecast.currentAirQuality);
+    // }
+    //
+    // m_lastUpdated = QDateTime::currentDateTimeUtc();
+    // appendCacheMetadata(obj, ttl);
+    // const QJsonDocument out(obj);
+    // const QByteArray serialized = out.toJson(QJsonDocument::Compact);
+    // m_cacheStore.put(key, serialized, ttl);
+    //
+    // Logger::info("WeatherRepository: cached new forecast (" + QString::number(serialized.size()) + ")");
+    //
+    // return forecast;
 }
 
 void WeatherRepository::setProvider(std::shared_ptr<IWeatherProvider> provider) {
