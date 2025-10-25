@@ -38,8 +38,7 @@ QDir ApplicationContext::cacheDir() const {
 
 void ApplicationContext::rebuildWeatherProvider() {
     const QString selected = toString(m_settings->weatherProvider());
-    auto it = m_weatherProviders.find(selected);
-    if (it != m_weatherProviders.end()) {
+    if (const auto it = m_weatherProviders.find(selected); it != m_weatherProviders.end()) {
         m_currentWeatherProvider = it->second;
         Logger::info("Weather provider switched: " + selected);
     } else if (!m_weatherProviders.empty()) {
@@ -54,8 +53,7 @@ void ApplicationContext::rebuildWeatherProvider() {
 
 void ApplicationContext::rebuildGeocoder() {
     const QString selected = toString(m_settings->geocoderProvider());
-    auto it = m_geocoderProviders.find(selected);
-    if (it != m_geocoderProviders.end()) {
+    if (const auto it = m_geocoderProviders.find(selected); it != m_geocoderProviders.end()) {
         m_currentGeocoderProvider = it->second;
         Logger::info("Geocoder provider switched: " + selected);
     } else if (!m_geocoderProviders.empty()) {

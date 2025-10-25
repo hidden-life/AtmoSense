@@ -39,9 +39,19 @@ void HourlyForecastWidget::update(const std::vector<Weather> &hourly) {
 
     m_lastHourly = hourly;
 
-    const int count = std::min<int>(hourly.size(), hours);
     const bool isDark = m_ctx->themeManager()->isDarkTheme();
-    for (int i = 0; i < count; i++) {
+    const QDateTime now = QDateTime::currentDateTimeUtc();
+
+    int startIdx = 0;
+    for (int i = 0; i < hourly.size(); ++i) {
+        if (hourly[i].timestamp >= now) {
+            startIdx = i;
+            break;
+        }
+    }
+
+    const int endIdx = std::min<int>(static_cast<int>(hourly.size()), startIdx + hours);
+    for (int i = startIdx; i < endIdx; ++i) {
         const auto &h = hourly[i];
         auto *card = new QWidget();
         auto *v = new QVBoxLayout(card);
@@ -52,7 +62,6 @@ void HourlyForecastWidget::update(const std::vector<Weather> &hourly) {
         iconLabel->setPixmap(icon.pixmap(48, 48));
 
         const UnitSystem unitSystem = m_ctx->settings()->unitSystem();
-
         const QLocale locale;
         auto *timeLabel = new QLabel(locale.toString(h.timestamp.toLocalTime().time(), QLocale::ShortFormat));
         auto *temperatureLabel = new QLabel(UnitFormatter::temperature(h.temperature, unitSystem));
