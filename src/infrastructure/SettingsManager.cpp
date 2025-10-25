@@ -7,6 +7,8 @@
 
 SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings("Home Labs", "AtmoSense") {
     QSettings::setDefaultFormat(QSettings::IniFormat);
+    Logger::info("SettingsManager initialized.");
+    Logger::info("Loaded unit system: " + m_settings.value("units/system", "metric").toString());
 }
 
 Language SettingsManager::language() const {
@@ -147,7 +149,6 @@ void SettingsManager::setGeocoderProvider(GeocoderProviderId id) {
 
 UnitSystem SettingsManager::unitSystem() const {
     const QString val = m_settings.value("units/system", "metric").toString();
-    Logger::info(QString("Loaded unit system: %1").arg(val));
     return val.compare("imperial", Qt::CaseInsensitive) == 0 ? UnitSystem::Imperial : UnitSystem::Metric;
 }
 

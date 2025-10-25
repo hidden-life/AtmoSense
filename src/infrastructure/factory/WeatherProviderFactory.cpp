@@ -16,13 +16,14 @@ std::map<QString, std::shared_ptr<IWeatherProvider>> WeatherProviderFactory::cre
     std::map<QString, std::shared_ptr<IWeatherProvider>> providers;
 
     // open meteo
-    providers["open-meteo"] = std::make_shared<OpenMeteoWeatherProvider>(client, settings);
+    providers[toString(WeatherProviderId::OpenMeteo)] = std::make_shared<OpenMeteoWeatherProvider>(client, settings);
     // open weather map
     const QString key = settings.openWeatherMapAPIKey().trimmed();
-    providers["open-weather-map"] = std::make_shared<OpenWeatherMapWeatherProvider>(client, key);
-    if (key.isEmpty()) {
-        Logger::warning("OpenWeatherMap API key missing, provider added. but inactive.");
-    }
+   if (!key.isEmpty()) {
+       providers[toString(WeatherProviderId::OpenWeatherMap)] = std::make_shared<OpenWeatherMapWeatherProvider>(client, key);
+   } else {
+       Logger::warning("OpenWeatherMap API key missing, skipping provider.");
+   }
 
     Logger::info(QString("WeatherProviderFactory: total providers = %1").arg(providers.size()));
 
