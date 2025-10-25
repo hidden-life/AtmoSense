@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include "SettingsManager.h"
 #include "repository/IWeatherRepository.h"
+#include "use_case/DetectLocationUseCase.h"
 
 MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
     QMainWindow(parent), ui(new Ui::MainWindow), m_ctx(ctx) {
@@ -27,6 +28,10 @@ MainWindow::MainWindow(ApplicationContext *ctx, QWidget *parent) :
     connect(ui->refreshButton, &QPushButton::clicked, this, &MainWindow::onRefreshButtonClicked);
     connect(ui->changeLocationButton, &QPushButton::clicked, this, &MainWindow::onChangeLocationButtonClicked);
     connect(ui->settingsButton, &QPushButton::clicked, this, &MainWindow::onSettingsButtonClicked);
+    connect(ui->detectLocationButton, &QPushButton::clicked, [this]() {
+        DetectLocationUseCase locDetect(m_ctx->settings().get());
+        locDetect();
+    });
 
     restoreLastLocation();
 

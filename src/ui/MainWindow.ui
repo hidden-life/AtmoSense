@@ -66,6 +66,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="detectLocationButton">
+        <property name="text">
+         <string>📍 Detect</string>
+        </property>
+        <property name="toolTip">
+         <string>Detect current location via IP</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="refreshButton">
         <property name="text">
          <string>Refresh</string>
@@ -83,23 +93,23 @@
     <item>
      <widget class="DailyForecastWidget" name="dailyForecastWidget" native="true"/>
     </item>
-	<item>
-	 <widget class="QLabel" name="statusLabel">
-	  <property name="alignment">
-	   <set>Qt::AlignCenter</set>
-	  </property>
-	  <property name="styleSheet">
-	   <string notr="true">
-		font-size: 13px;
-		color: #666;
-		padding: 4px;
-	   </string>
-	  </property>
-	  <property name="text">
-	   <string>⏳ Waiting for update...</string>
-	  </property>
-	 </widget>
-	</item>
+    <item>
+     <widget class="QLabel" name="statusLabel">
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+        font-size: 13px;
+        color: #666;
+        padding: 4px;
+       </string>
+      </property>
+      <property name="text">
+       <string>⏳ Waiting for update...</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
