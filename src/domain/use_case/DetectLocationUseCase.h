@@ -21,20 +21,20 @@ public:
 
         const auto &info = *loc;
 
-        const QString msg = QObject::tr("Detected location:\n%1\nLatitude: %2\nLongitude: %3\n\nUse this location?").
+        const QString msg = QObject::tr("<b>Detected location:</b>\n%1\n<b>Latitude:</b> %2\n<b>Longitude:</b> %3\n\nUse this location?").
             arg(info.displayName()).
             arg(info.latitude, 0, 'f', 4).
             arg(info.longitude, 0, 'f', 4);
+        QMessageBox infoBox;
+        infoBox.setIcon(QMessageBox::Information);
+        infoBox.setWindowTitle(QObject::tr("Confirm location"));
+        infoBox.setText(msg);
+        infoBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        infoBox.setDefaultButton(QMessageBox::Yes);
+        infoBox.setStyleSheet("QLabel { min-width: 150px; }");
+        infoBox.setMinimumWidth(170);
 
-        const auto q = QMessageBox::question(
-            nullptr,
-            QObject::tr("Confirm location"),
-            msg,
-            QMessageBox::Yes | QMessageBox::No,
-            QMessageBox::Yes
-            );
-
-        if (q == QMessageBox::Yes) {
+        if (infoBox.exec() == QMessageBox::Yes) {
             m_settings->setLatitude(info.latitude);
             m_settings->setLongitude(info.longitude);
 
