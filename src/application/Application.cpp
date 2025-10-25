@@ -20,6 +20,7 @@ Application::Application(int &argc, char **argv) : m_app(argc, argv) {
     m_app.setApplicationName("AtmoSense");
     m_app.setOrganizationName("AtmoSense Labs");
     m_app.setQuitOnLastWindowClosed(false);
+    m_app.setApplicationDisplayName("AtmoSense Weather");
     m_ctx = std::make_unique<ApplicationContext>();
     m_ctx->init();
 
