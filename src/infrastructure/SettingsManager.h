@@ -114,9 +114,12 @@ public:
     [[nodiscard]]
     bool notification(NotificationType type) const;
     void setNotification(NotificationType type, bool isEnabled);
-
+    [[nodiscard]]
     bool notificationSoundEnabled() const;
     void setNotificationSoundEnabled(bool isEnabled);
+    [[nodiscard]]
+    int notificationSoundVolume() const;
+    void setNotificationSoundVolume(int volume);
 
 signals:
     void settingsChanged();

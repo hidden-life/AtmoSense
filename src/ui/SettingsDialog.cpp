@@ -10,6 +10,7 @@
 #include "interfaces/IWeatherProvider.h"
 #include "model/Provider.h"
 #include "model/Locale.h"
+#include "notifications/NotificationSoundPlayer.h"
 
 SettingsDialog::SettingsDialog(ApplicationContext *ctx, QWidget *parent) :
     QDialog(parent), ui(new Ui::SettingsDialog), m_ctx(ctx) {
@@ -121,7 +122,7 @@ SettingsDialog::SettingsDialog(ApplicationContext *ctx, QWidget *parent) :
     ui->windCheckBox->setChecked(settings->notification(NotificationType::Wind));
     ui->freezeCheckBox->setChecked(settings->notification(NotificationType::Freeze));
 
-    ui->notificationSoundCheckBox->setChecked(settings->notificationSoundEnabled());
+    setupSoundSettings();
 
     connect(ui->saveButton, &QPushButton::clicked, this, &SettingsDialog::onSaveButtonClicked);
     connect(ui->cancelButton, &QPushButton::clicked, this, &SettingsDialog::onCancelButtonClicked);
@@ -200,6 +201,41 @@ void SettingsDialog::updateAPIKeyVisibility() {
     } else {
         ui->apiKeyLineEdit->clear();
     }
+}
+
+void SettingsDialog::setupSoundSettings() {
+    // load data
+    ui->enableSoundsCheckBox->setChecked(m_ctx->settings()->notificationSoundEnabled());
+    ui->volumeSlider->setValue(m_ctx->settings()->notificationSoundVolume());
+
+    // connect signals
+    connect(ui->enableSoundsCheckBox, &QCheckBox::toggled, this, [this](bool enabled) {
+        m_ctx->settings()->setNotificationSoundEnabled(enabled);
+
+        // on/off connected fields
+        ui->volumeSlider->setEnabled(enabled);
+        ui->volumeLabel->setEnabled(enabled);
+        ui->testSoundButton->setEnabled(enabled);
+    });
+
+    connect(ui->volumeSlider, &QSlider::valueChanged, this, [this](int value) {
+        m_ctx->settings()->setNotificationSoundVolume(value);
+    });
+
+    // test sound button
+    auto *player = new NotificationSoundPlayer(this);
+    connect(ui->testSoundButton, &QPushButton::clicked, this, [this, player]() {
+        if (m_ctx->settings()->notificationSoundEnabled()) {
+            player->setVolume(m_ctx->settings()->notificationSoundVolume() / 100.0);
+            player->play(NotificationType::Rain);
+        }
+    });
+
+    // init on open
+    const bool enabled = m_ctx->settings()->notificationSoundEnabled();
+    ui->volumeSlider->setEnabled(enabled);
+    ui->volumeLabel->setEnabled(enabled);
+    ui->testSoundButton->setEnabled(enabled);
 }
 
 void SettingsDialog::onSaveButtonClicked() {

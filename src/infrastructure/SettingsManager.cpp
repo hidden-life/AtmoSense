@@ -289,11 +289,22 @@ void SettingsManager::setNotification(const NotificationType type, const bool is
 }
 
 bool SettingsManager::notificationSoundEnabled() const {
-    return m_settings.value("notifications/play_sound", true).toBool();
+    return m_settings.value("notifications/sound_enabled", true).toBool();
 }
 
 void SettingsManager::setNotificationSoundEnabled(bool isEnabled) {
-    m_settings.setValue("notifications/play_sound", isEnabled);
+    m_settings.setValue("notifications/sound_enabled", isEnabled);
+    m_settings.sync();
+
+    emit settingsChanged();
+}
+
+int SettingsManager::notificationSoundVolume() const {
+    return m_settings.value("notifications/sound_volume", 80).toInt();
+}
+
+void SettingsManager::setNotificationSoundVolume(const int volume) {
+    m_settings.setValue("notifications/sound_volume", volume);
     m_settings.sync();
 
     emit settingsChanged();

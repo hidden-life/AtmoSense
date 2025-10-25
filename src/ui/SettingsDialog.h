@@ -26,6 +26,8 @@ private:
     void populateProviders();
     void updateAPIKeyVisibility();
 
+    void setupSoundSettings();
+
 private slots:
     void onSaveButtonClicked();
     void onCancelButtonClicked();
