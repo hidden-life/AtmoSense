@@ -39,8 +39,7 @@ Application::~Application() {
 
 int Application::start() {
     Logger::info("Application started.");
-    QFile qss(":/styles/default.qss");
-    if (qss.open(QFile::ReadOnly)) {
+    if (QFile qss(":/styles/default.qss"); qss.open(QFile::ReadOnly)) {
         qApp->setStyleSheet(qss.readAll());
     }
 
@@ -101,7 +100,7 @@ int Application::start() {
     connect(m_trayService.get(), &TrayService::openSettingsRequested, this, &Application::showSettings);
 
     connect(m_ctx->updateScheduler().get(), &UpdateScheduler::update, this, &Application::fetchWeather);
-    QMetaObject::invokeMethod(this, &Application::fetchWeather, Qt::QueuedConnection);
+    // QMetaObject::invokeMethod(this, &Application::fetchWeather, Qt::QueuedConnection);
 
     connect(m_mainWindow.get(), &MainWindow::refreshRequested, this, &Application::fetchWeather);
     connect(m_mainWindow.get(), &MainWindow::openSettingsRequested, this, &Application::showSettings);

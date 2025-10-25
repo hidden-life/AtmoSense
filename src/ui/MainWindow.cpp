@@ -188,8 +188,7 @@ void MainWindow::setStatus(DataStatus status, const QString &txt) {
 }
 
 void MainWindow::restoreLastLocation() {
-    const auto location = m_ctx->settings()->lastLocation();
-    if (!location.name.isEmpty()) {
+    if (const auto location = m_ctx->settings()->lastLocation(); !location.name.isEmpty()) {
         m_locationLabelText = location.name;
         ui->locationLabel->setText(location.name);
     } else {
