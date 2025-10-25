@@ -32,6 +32,9 @@ target_link_libraries(infrastructure PRIVATE
         Qt${QT_VERSION_MAJOR}::Network
         Qt${QT_VERSION_MAJOR}::Multimedia
 )
+
+target_link_libraries(infrastructure PRIVATE spdlog)
+
 target_include_directories(infrastructure PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/open_meteo

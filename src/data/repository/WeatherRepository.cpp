@@ -93,14 +93,14 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
                 return forecast;
             }
 
-            Logger::warn("WeatherRepository: cache expired for <" + key + ">");
+            Logger::warning("WeatherRepository: cache expired for <" + key + ">");
         }
     }
 
     // request freq
     static QDateTime lastRequest;
     if (const int minInterval = maxAge * 60; lastRequest.isValid() && lastRequest.secsTo(QDateTime::currentDateTimeUtc()) < minInterval) {
-        Logger::warn("WeatherRepository: skipping API call (rate limit).");
+        Logger::warning("WeatherRepository: skipping API call (rate limit).");
         if (const auto cached = m_cacheStore.get(key)) {
             if (const QJsonDocument doc = QJsonDocument::fromJson(*cached); doc.isObject()) {
                 const auto root = doc.object();
@@ -134,7 +134,7 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
         }
 
         if (!m_provider->client().hasInternet()) {
-            Logger::warn("No internet connection. Loading from cache.");
+            Logger::warning("No internet connection. Loading from cache.");
             if (const auto cached = m_cacheStore.get(key)) {
                 Logger::info("Using cached forecast due to no internet.");
                 const QJsonDocument doc = QJsonDocument::fromJson(*cached);
@@ -168,7 +168,7 @@ Forecast WeatherRepository::get(const double lat, const double lon, const QStrin
         Logger::error("Weather provider fetch failed: " + QString::fromStdString(e.what()));
         // fallback and return old cache data
         if (const auto cached = m_cacheStore.get(key)) {
-            Logger::warn("Returning stale cache due to provider failure.");
+            Logger::warning("Returning stale cache due to provider failure.");
             const QJsonDocument doc = QJsonDocument::fromJson(*cached);
             const auto root = doc.object();
             Forecast f;

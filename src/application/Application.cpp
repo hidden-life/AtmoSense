@@ -23,13 +23,17 @@ Application::Application(int &argc, char **argv) : m_app(argc, argv) {
     m_ctx = std::make_unique<ApplicationContext>();
     m_ctx->init();
 
+    Logger::init();
+
     m_mainWindow = std::make_unique<MainWindow>(m_ctx.get());
     m_mainWindow->restoreLastLocation();
     m_trayService = std::make_unique<TrayService>(m_ctx.get());
     m_alertService = std::make_unique<AlertService>(m_ctx->settings().get(), m_trayService.get());
 }
 
-Application::~Application() = default;
+Application::~Application() {
+    Logger::shutdown();
+}
 
 int Application::start() {
     Logger::info("Application started.");

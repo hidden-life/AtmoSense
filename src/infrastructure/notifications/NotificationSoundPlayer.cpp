@@ -18,13 +18,13 @@ NotificationSoundPlayer::NotificationSoundPlayer(QObject *parent) {
 
 void NotificationSoundPlayer::play(NotificationType type) {
     if (!m_sounds.contains(type)) {
-        Logger::warn("NotificationSoundPlayer: unknown sound type.");
+        Logger::warning("NotificationSoundPlayer: unknown sound type.");
         return;
     }
 
     auto *sound = m_sounds[type];
     if (!sound->isLoaded()) {
-        Logger::warn("NotificationSoundPlayer: sound not loaded, skipping.");
+        Logger::warning("NotificationSoundPlayer: sound not loaded, skipping.");
         return;
     }
 

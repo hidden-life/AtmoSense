@@ -44,7 +44,7 @@ void ApplicationContext::rebuildWeatherProvider() {
         Logger::info("Weather provider switched: " + selected);
     } else if (!m_weatherProviders.empty()) {
         m_currentWeatherProvider = m_weatherProviders.begin()->second;
-        Logger::warn("Unknown weather provider <" + selected + ">, fallback to default.");
+        Logger::warning("Unknown weather provider <" + selected + ">, fallback to default.");
     }
 
     if (m_weatherRepository && m_currentWeatherProvider) {
@@ -60,7 +60,7 @@ void ApplicationContext::rebuildGeocoder() {
         Logger::info("Geocoder provider switched: " + selected);
     } else if (!m_geocoderProviders.empty()) {
         m_currentGeocoderProvider = m_geocoderProviders.begin()->second;
-        Logger::warn("Unknown geocoder <" + selected + ">, fallback to default.");
+        Logger::warning("Unknown geocoder <" + selected + ">, fallback to default.");
     }
 }
 

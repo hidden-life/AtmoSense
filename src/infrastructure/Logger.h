@@ -2,11 +2,29 @@
 #define INFRASTRUCTURE_LOGGER_H
 
 #include <QString>
+#include <memory>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
-namespace Logger {
-    void info(const QString &message);
-    void warn(const QString &message);
-    void error(const QString &message);
-}
+class Logger {
+public:
+    static void init();
+    static void shutdown();
+
+    static void info(const QString &msg);
+    static void warning(const QString &msg);
+    static void error(const QString &msg);
+    static void debug(const QString &msg);
+
+    // 0 - trace
+    // 1 - debug
+    // 2 - info
+    // 3 - warning
+    // 4 - error
+    static void setLevel(int level);
+
+private:
+    static std::shared_ptr<spdlog::logger> m_logger;
+};
 
 #endif //INFRASTRUCTURE_LOGGER_H

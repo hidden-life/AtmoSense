@@ -14,7 +14,7 @@ AlertService::AlertService(SettingsManager *settings, TrayService *tray, QObject
 
 void AlertService::process(const Forecast &forecast) {
     if (!m_settings || !m_tray) {
-        Logger::warn("AlertService: not initialized properly.");
+        Logger::warning("AlertService: not initialized properly.");
         return;
     }
 

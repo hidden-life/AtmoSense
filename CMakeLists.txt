@@ -11,10 +11,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Network Multimedia Test)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Network Multimedia Test)
 
+# spdlog
+add_library(spdlog INTERFACE)
+target_include_directories(spdlog INTERFACE "${CMAKE_SOURCE_DIR}/third_party/spdlog/include")
+
 # Qt settings
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+
+set(CMAKE_PCH_ENABLE TRUE)
+set(CMAKE_PCH_INSTANTIATE_TEMPLATES TRUE)
 
 # additional options
 option(ATMO_SENSE_ENABLE_TESTS "Enable tests" ON)

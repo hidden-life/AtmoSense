@@ -21,7 +21,7 @@ std::map<QString, std::shared_ptr<IWeatherProvider>> WeatherProviderFactory::cre
     const QString key = settings.openWeatherMapAPIKey().trimmed();
     providers["open-weather-map"] = std::make_shared<OpenWeatherMapWeatherProvider>(client, key);
     if (key.isEmpty()) {
-        Logger::warn("OpenWeatherMap API key missing, provider added. but inactive.");
+        Logger::warning("OpenWeatherMap API key missing, provider added. but inactive.");
     }
 
     Logger::info(QString("WeatherProviderFactory: total providers = %1").arg(providers.size()));

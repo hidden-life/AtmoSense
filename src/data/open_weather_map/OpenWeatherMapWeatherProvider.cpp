@@ -13,7 +13,7 @@ Forecast OpenWeatherMapWeatherProvider::fetch(double lat, double lon, const QStr
     const QString url = QString("https://api.openweathermap.org/data/2.5/onecall?lat=%1&lon=%2&appid=%3&units=metric").arg(lat).arg(lon).arg(m_apiKey);
     const auto data = m_client.getJson(url);
     if (data.isEmpty()) {
-        Logger::warn("OpenWeatherMap: Failed to fetch weather data.");
+        Logger::warning("OpenWeatherMap: Failed to fetch weather data.");
         throw std::runtime_error("Failed to fetch weather data.");
     }
 

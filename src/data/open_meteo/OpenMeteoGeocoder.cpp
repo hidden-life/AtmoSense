@@ -23,19 +23,19 @@ std::vector<Location> OpenMeteoGeocoder::search(const QString &query, const QStr
     // process request
     const auto data = m_client.getJson(url);
     if (data.isEmpty()) {
-        Logger::warn("OpenMeteoGeocoder: Failed to get search result for <" + query + ">");
+        Logger::warning("OpenMeteoGeocoder: Failed to get search result for <" + query + ">");
         return result;
     }
 
     const auto doc = QJsonDocument::fromJson(data.toJson());
     if (!doc.isObject()) {
-        Logger::warn("OpenMeteoGeocoder: Failed to parse search result.");
+        Logger::warning("OpenMeteoGeocoder: Failed to parse search result.");
         return result;
     }
 
     const auto root = doc.object();
     if (!root.contains("results")) {
-        Logger::warn("OpenMeteoGeocoder: No results for query <" + query + ">");
+        Logger::warning("OpenMeteoGeocoder: No results for query <" + query + ">");
         return result;
     }
 

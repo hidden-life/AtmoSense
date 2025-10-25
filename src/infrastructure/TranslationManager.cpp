@@ -35,10 +35,10 @@ void TranslationManager::install(const QString &code) {
 
     auto tr = std::make_unique<QTranslator>();
     if (const bool isOk = tr->load(path); !isOk) {
-        Logger::warn("Failed to load translations for " + path + ", falling back to English.");
+        Logger::warning("Failed to load translations for " + path + ", falling back to English.");
         if (code != "en") {
             if (const bool ok = tr->load(":/translations/atmo_sense_en.qm"); !ok) {
-                Logger::warn("Fallback EN translator not found, continuing without translator.");
+                Logger::warning("Fallback EN translator not found, continuing without translator.");
                 return;
             }
         } else {

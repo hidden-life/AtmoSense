@@ -13,7 +13,7 @@ QIcon IconMapper::map(const int weatherCode, const bool isDarkTheme) {
     if (const QString path = resolveIconPath(weatherCode, isDarkTheme); QFile::exists(path)) {
         return QIcon(path);
     } else {
-        Logger::warn("IconMapper: Missing icon: " + path);
+        Logger::warning("IconMapper: Missing icon: " + path);
         return QIcon(":/icons/unknown.png");
     }
 }

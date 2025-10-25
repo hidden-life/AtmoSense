@@ -74,7 +74,7 @@ void MainWindow::updateWeather(const Forecast &forecast) {
     m_lastForecast = forecast;
 
     if (!m_ctx) {
-        Logger::warn("MainWindow: context is null, skipping update process.");
+        Logger::warning("MainWindow: context is null, skipping update process.");
         return;
     }
 

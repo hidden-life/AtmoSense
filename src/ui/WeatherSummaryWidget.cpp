@@ -22,7 +22,7 @@ void WeatherSummaryWidget::setContext(ApplicationContext *ctx) {
 
 void WeatherSummaryWidget::update(const Weather &weather) {
     if (!m_ctx) {
-        Logger::warn("WeatherSummaryWidget::update: context is null.");
+        Logger::warning("WeatherSummaryWidget::update: context is null.");
         return;
     }
 
